@@ -346,6 +346,7 @@ app.use((err, _req, res, _next) => {
 
 async function start() {
   await mongoose.connect(MONGO_URI);
+  console.log("MongoDB Connected Successfully!");
 
   const adminExists = await User.findOne({ identityId: "IV6859070" });
   if (!adminExists) {
