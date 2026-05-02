@@ -8,6 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth-context";
 import { useData } from "@/lib/data-context";
+import { useTheme } from "@/lib/theme-context";
 
 interface RowProps {
   icon: keyof typeof Feather.glyphMap;
@@ -86,6 +87,7 @@ export default function MoreScreen() {
   const insets = useSafeAreaInsets();
   const { user, logout, isAdmin } = useAuth();
   const { items, claims, reports, announcements } = useData();
+  const { mode, setMode } = useTheme();
 
   const myItems = items.filter((i) => i.userId === user?.id).length;
   const myClaims = claims.filter((c) => c.userId === user?.id).length;
@@ -233,6 +235,23 @@ export default function MoreScreen() {
             </View>
           </View>
         ) : null}
+
+        <View>
+          <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>PREFERENCES</Text>
+          <View style={{ gap: 10, marginTop: 8 }}>
+            <Row
+              icon={mode === "dark" ? "moon" : mode === "light" ? "sun" : "smartphone"}
+              label="Theme"
+              description={`Currently: ${mode.charAt(0).toUpperCase() + mode.slice(1)}`}
+              onPress={() => {
+                const next = mode === "light" ? "dark" : mode === "dark" ? "system" : "light";
+                setMode(next);
+              }}
+              iconBg={colors.primarySoft}
+              iconFg={colors.primary}
+            />
+          </View>
+        </View>
 
         <View>
           <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>ACCOUNT</Text>

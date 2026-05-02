@@ -45,6 +45,52 @@ const colors = {
     statusClaimed: "#f59e0b",
     statusClosed: "#6b7280",
   },
+  dark: {
+    text: "#ffffff",
+    tint: "#7a8eed",
+
+    background: "#121212",
+    foreground: "#ffffff",
+
+    card: "#1e1e1e",
+    cardForeground: "#ffffff",
+
+    primary: "#7a8eed",
+    primaryForeground: "#ffffff",
+    primaryDark: "#5b6fe0",
+    primarySoft: "#2a2d45",
+
+    secondary: "#2a2a2a",
+    secondaryForeground: "#ffffff",
+
+    muted: "#2a2a2a",
+    mutedForeground: "#a1a1aa",
+
+    accent: "#2a2d45",
+    accentForeground: "#7a8eed",
+
+    destructive: "#f87171",
+    destructiveForeground: "#ffffff",
+    destructiveSoft: "#3f1c1c",
+
+    success: "#34d399",
+    successSoft: "#133524",
+
+    warning: "#fbbf24",
+    warningSoft: "#3f300f",
+
+    border: "#333333",
+    input: "#2a2a2a",
+
+    lost: "#f87171",
+    lostSoft: "#3f1c1c",
+    found: "#7a8eed",
+    foundSoft: "#2a2d45",
+
+    statusOpen: "#7a8eed",
+    statusClaimed: "#fbbf24",
+    statusClosed: "#a1a1aa",
+  },
   radius: 14,
 };
 
