@@ -133,7 +133,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (users.some((u) => u.identityId === cleanId)) {
       return { ok: false, error: "An account with that ID already exists" };
     }
-    const isFirstUser = users.length === 0;
     const userCategory = (cleanId.startsWith("IT") && cleanId.length >= 8) ? "student" : "other";
     const user: User = {
       id: genId(),
@@ -146,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       userCategory,
       passwordHash: hashPassword(payload.password),
       avatar: payload.avatar,
-      role: isFirstUser ? "admin" : "user",
+      role: "user",
       createdAt: new Date().toISOString(),
     };
     const next = [...users, user];

@@ -173,7 +173,6 @@ app.post("/auth/register", async (req, res) => {
 
   const userCategory = (cleanId.startsWith("IT") && cleanId.length >= 8) ? "student" : "other";
 
-  const count = await User.countDocuments({});
   const passwordHash = await bcrypt.hash(plainPassword, 10);
   const user = await User.create({
     identityId: cleanId,
@@ -185,7 +184,7 @@ app.post("/auth/register", async (req, res) => {
     userCategory,
     passwordHash,
     avatar: avatar || null,
-    role: count === 0 ? "admin" : "user",
+    role: "user",
     createdAt: new Date().toISOString(),
   });
 
