@@ -4,8 +4,13 @@ import { STORAGE_KEYS } from "./storage";
 
 export interface ApiUser {
   id: string;
+  identityId: string;
   name: string;
   email: string;
+  age: number;
+  gender: string;
+  phone: string;
+  userCategory: "student" | "other";
   avatar?: string;
   role: "user" | "admin";
   createdAt: string;
@@ -48,19 +53,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-export async function apiRegister(name: string, email: string, password: string) {
+export async function apiRegister(payload: { identityId: string; name: string; email: string; age: number; gender: string; phone: string; password: string; avatar?: string }) {
   const data = await request<{ token: string; user: ApiUser }>("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify(payload),
   });
   await setToken(data.token);
   return data.user;
 }
 
-export async function apiLogin(email: string, password: string) {
+export async function apiLogin(identityId: string, password: string) {
   const data = await request<{ token: string; user: ApiUser }>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ identityId, password }),
   });
   await setToken(data.token);
   return data.user;
@@ -86,7 +91,19 @@ export async function apiBootstrap() {
     claims: any[];
     reports: any[];
     announcements: any[];
+    users: ApiUser[];
   }>("/bootstrap");
+}
+
+export async function apiLikeItem(id: string) {
+  return request<any>(`/items/${id}/like`, { method: "POST" });
+}
+
+export async function apiCommentItem(id: string, text: string) {
+  return request<any>(`/items/${id}/comment`, { 
+    method: "POST",
+    body: JSON.stringify({ text })
+  });
 }
 
 export async function apiCreate<T>(path: string, payload: unknown) {

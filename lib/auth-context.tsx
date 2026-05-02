@@ -24,12 +24,17 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-  login: (email: string, password: string) => Promise<{ ok: true } | { ok: false; error: string }>;
-  register: (
-    name: string,
-    email: string,
-    password: string,
-  ) => Promise<{ ok: true } | { ok: false; error: string }>;
+  login: (identityId: string, password: string) => Promise<{ ok: true } | { ok: false; error: string }>;
+  register: (payload: {
+    identityId: string;
+    name: string;
+    email: string;
+    age: number;
+    gender: string;
+    phone: string;
+    password: string;
+    avatar?: string;
+  }) => Promise<{ ok: true } | { ok: false; error: string }>;
   logout: () => Promise<void>;
   updateProfile: (patch: Partial<Pick<User, "name" | "avatar">>) => Promise<void>;
   isAdmin: boolean;
@@ -40,8 +45,13 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 function mapApiUser(user: ApiUser): User {
   return {
     id: user.id,
+    identityId: user.identityId,
     name: user.name,
     email: user.email,
+    age: user.age,
+    gender: user.gender,
+    phone: user.phone,
+    userCategory: user.userCategory,
     avatar: user.avatar,
     role: user.role,
     createdAt: user.createdAt,
@@ -77,21 +87,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [useApi]);
 
-  const login = useCallback<AuthContextValue["login"]>(async (email, password) => {
+  const login = useCallback<AuthContextValue["login"]>(async (identityId, password) => {
     if (useApi) {
       try {
-        const user = await apiLogin(email, password);
+        const user = await apiLogin(identityId, password);
         setState({ user: mapApiUser(user), ready: true });
         return { ok: true };
       } catch (error) {
         return { ok: false, error: error instanceof Error ? error.message : "Login failed" };
       }
     }
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed || !password) return { ok: false, error: "Email and password are required" };
+    const trimmed = identityId.trim().toUpperCase();
+    if (!trimmed || !password) return { ok: false, error: "ID/NIC and password are required" };
     const users = await readJSON<User[]>(STORAGE_KEYS.users, []);
-    const user = users.find((u) => u.email.toLowerCase() === trimmed);
-    if (!user) return { ok: false, error: "No account found with that email" };
+    const user = users.find((u) => u.identityId === trimmed);
+    if (!user) return { ok: false, error: "No account found with that ID" };
     if (user.passwordHash !== hashPassword(password)) {
       return { ok: false, error: "Incorrect password" };
     }
@@ -100,33 +110,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { ok: true };
   }, [useApi]);
 
-  const register = useCallback<AuthContextValue["register"]>(async (name, email, password) => {
+  const register = useCallback<AuthContextValue["register"]>(async (payload) => {
     if (useApi) {
       try {
-        const user = await apiRegister(name, email, password);
+        const user = await apiRegister(payload);
         setState({ user: mapApiUser(user), ready: true });
         return { ok: true };
       } catch (error) {
         return { ok: false, error: error instanceof Error ? error.message : "Registration failed" };
       }
     }
-    const cleanName = name.trim();
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanId = payload.identityId.trim().toUpperCase();
+    const cleanName = payload.name.trim();
+    const cleanEmail = payload.email.trim().toLowerCase();
+    if (!cleanId) return { ok: false, error: "Please enter your ID/NIC" };
     if (!cleanName) return { ok: false, error: "Please enter your name" };
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       return { ok: false, error: "Please enter a valid email" };
     }
-    if (password.length < 6) return { ok: false, error: "Password must be at least 6 characters" };
+    if (payload.password.length < 6) return { ok: false, error: "Password must be at least 6 characters" };
     const users = await readJSON<User[]>(STORAGE_KEYS.users, []);
-    if (users.some((u) => u.email.toLowerCase() === cleanEmail)) {
-      return { ok: false, error: "An account with that email already exists" };
+    if (users.some((u) => u.identityId === cleanId)) {
+      return { ok: false, error: "An account with that ID already exists" };
     }
     const isFirstUser = users.length === 0;
+    const userCategory = (cleanId.startsWith("IT") && cleanId.length >= 8) ? "student" : "other";
     const user: User = {
       id: genId(),
+      identityId: cleanId,
       name: cleanName,
       email: cleanEmail,
-      passwordHash: hashPassword(password),
+      age: payload.age,
+      gender: payload.gender,
+      phone: payload.phone,
+      userCategory,
+      passwordHash: hashPassword(payload.password),
+      avatar: payload.avatar,
       role: isFirstUser ? "admin" : "user",
       createdAt: new Date().toISOString(),
     };

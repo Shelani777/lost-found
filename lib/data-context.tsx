@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-import { apiBootstrap, apiCreate, apiDelete, apiPatch, hasApiBaseUrl } from "./api";
+import { apiBootstrap, apiCreate, apiDelete, apiPatch, hasApiBaseUrl, ApiUser, apiLikeItem, apiCommentItem } from "./api";
 import {
   Announcement,
   Category,
@@ -25,6 +25,7 @@ interface DataState {
   claims: ClaimRequest[];
   reports: Report[];
   announcements: Announcement[];
+  users: ApiUser[];
 }
 
 interface DataContextValue extends DataState {
@@ -35,6 +36,8 @@ interface DataContextValue extends DataState {
   updateItem: (id: string, patch: Partial<Item>) => Promise<void>;
   deleteItem: (id: string) => Promise<void>;
   setItemStatus: (id: string, status: ItemStatus) => Promise<void>;
+  likeItem: (id: string) => Promise<void>;
+  commentItem: (id: string, text: string) => Promise<void>;
 
   // Categories
   createCategory: (input: Omit<Category, "id">) => Promise<Category>;
@@ -80,6 +83,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     claims: [],
     reports: [],
     announcements: [],
+    users: [],
   });
 
   useEffect(() => {
@@ -96,6 +100,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
               claims: data.claims as ClaimRequest[],
               reports: data.reports as Report[],
               announcements: data.announcements as Announcement[],
+              users: data.users as ApiUser[],
             });
           }
           return;
@@ -115,7 +120,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         readJSON<Announcement[]>(STORAGE_KEYS.announcements, []),
       ]);
       if (active) {
-        setState({ ready: true, categories, items, claims, reports, announcements });
+        setState({ ready: true, categories, items, claims, reports, announcements, users: [] });
       }
     })();
     return () => {
@@ -202,6 +207,26 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       await updateItem(id, { status });
     },
     [updateItem],
+  );
+
+  const likeItem = useCallback<DataContextValue["likeItem"]>(
+    async (id) => {
+      if (useApi) {
+        const updated = await apiLikeItem(id);
+        setState((s) => ({ ...s, items: s.items.map((i) => (i.id === id ? updated : i)) }));
+      }
+    },
+    [useApi]
+  );
+
+  const commentItem = useCallback<DataContextValue["commentItem"]>(
+    async (id, text) => {
+      if (useApi) {
+        const updated = await apiCommentItem(id, text);
+        setState((s) => ({ ...s, items: s.items.map((i) => (i.id === id ? updated : i)) }));
+      }
+    },
+    [useApi]
   );
 
   // Categories
@@ -448,6 +473,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       updateItem,
       deleteItem,
       setItemStatus,
+      likeItem,
+      commentItem,
       createCategory,
       updateCategory,
       deleteCategory,
@@ -473,6 +500,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       updateItem,
       deleteItem,
       setItemStatus,
+      likeItem,
+      commentItem,
       createCategory,
       updateCategory,
       deleteCategory,

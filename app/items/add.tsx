@@ -29,6 +29,7 @@ export default function AddItemScreen() {
   const [location, setLocation] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [image, setImage] = useState<string | undefined>();
+  const [publicity, setPublicity] = useState<string>("everyone");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
 
@@ -60,6 +61,9 @@ export default function AddItemScreen() {
       location: location.trim(),
       contactNumber: contactNumber.trim(),
       image,
+      publicity: publicity as "everyone" | "students_only",
+      likes: [],
+      comments: [],
       userId: user.id,
     });
     setBusy(false);
@@ -156,6 +160,16 @@ export default function AddItemScreen() {
           value={contactNumber}
           onChangeText={setContactNumber}
           error={errors.contactNumber}
+        />
+
+        <Select
+          label="Who can see this?"
+          value={publicity}
+          onChange={setPublicity}
+          options={[
+            { label: "Everyone", value: "everyone", description: "Public post visible to all users" },
+            { label: "Students Only", value: "students_only", description: "Visible only to university students" },
+          ]}
         />
 
         <Button title="Post Item" onPress={onSubmit} loading={busy} />

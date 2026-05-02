@@ -58,7 +58,8 @@ export default function CategoriesScreen() {
     const used = items.some((i) => i.categoryId === cat.id);
     if (used) {
       const msg = "Cannot delete a category that is used by posts.";
-      Platform.OS === "web" ? alert(msg) : Alert.alert("Cannot delete", msg);
+      // @ts-ignore
+      Platform.OS === "web" ? window.alert(msg) : Alert.alert("Cannot delete", msg);
       return;
     }
     const doIt = () => deleteCategory(cat.id);
@@ -76,10 +77,10 @@ export default function CategoriesScreen() {
           title: "Categories",
           headerRight: isAdmin
             ? () => (
-                <Pressable hitSlop={8} onPress={openNew}>
-                  <Feather name="plus" size={22} color={colors.primary} />
-                </Pressable>
-              )
+              <Pressable hitSlop={8} onPress={openNew}>
+                <Feather name="plus" size={22} color={colors.primary} />
+              </Pressable>
+            )
             : undefined,
         }}
       />

@@ -11,6 +11,7 @@ import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth-context";
 import { useData } from "@/lib/data-context";
 import { ItemStatus, formatRelative } from "@/lib/storage";
+import { Input } from "@/components/Input";
 
 const STATUS_OPTIONS: { value: ItemStatus; label: string }[] = [
   { value: "open", label: "Open" },
@@ -24,7 +25,9 @@ export default function ItemDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user, isAdmin } = useAuth();
-  const { getItem, getCategory, deleteItem, setItemStatus, claims } = useData();
+  const { getItem, getCategory, deleteItem, setItemStatus, claims, commentItem, users } = useData();
+  const [commentText, setCommentText] = React.useState("");
+  const [busyComment, setBusyComment] = React.useState(false);
 
   const item = id ? getItem(id) : undefined;
   const category = item ? getCategory(item.categoryId) : undefined;
@@ -61,6 +64,14 @@ export default function ItemDetailScreen() {
 
   const handleStatusChange = (status: ItemStatus) => {
     setItemStatus(item.id, status);
+  };
+
+  const handleAddComment = async () => {
+    if (!commentText.trim()) return;
+    setBusyComment(true);
+    await commentItem(item.id, commentText.trim());
+    setCommentText("");
+    setBusyComment(false);
   };
 
   return (
@@ -242,6 +253,60 @@ export default function ItemDetailScreen() {
               </View>
             </View>
           ) : null}
+
+          {/* Comments Section */}
+          <View style={{ marginTop: 22, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 18 }}>
+            <Text style={{ color: colors.foreground, fontFamily: "Inter_700Bold", fontSize: 18, marginBottom: 14 }}>
+              Comments ({item.comments?.length || 0})
+            </Text>
+            
+            <View style={{ gap: 12, marginBottom: 20 }}>
+              {item.comments?.map((c, i) => {
+                const author = users.find((u) => u.id === c.userId);
+                return (
+                  <View key={i} style={{ flexDirection: "row", gap: 10 }}>
+                    <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: colors.muted, alignItems: "center", justifyContent: "center" }}>
+                      {author?.avatar ? (
+                        <Image source={{ uri: author.avatar }} style={{ width: 32, height: 32, borderRadius: 16 }} contentFit="cover" />
+                      ) : (
+                        <Feather name="user" size={16} color={colors.mutedForeground} />
+                      )}
+                    </View>
+                    <View style={{ flex: 1, backgroundColor: colors.muted, padding: 10, borderRadius: colors.radius - 2 }}>
+                      <Text style={{ color: colors.foreground, fontFamily: "Inter_600SemiBold", fontSize: 13, marginBottom: 2 }}>
+                        {author?.name || "Unknown"}
+                      </Text>
+                      <Text style={{ color: colors.foreground, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 4 }}>
+                        {c.text}
+                      </Text>
+                      <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_400Regular", fontSize: 11 }}>
+                        {formatRelative(c.createdAt)}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+
+            {user ? (
+              <View style={{ flexDirection: "row", gap: 8, alignItems: "flex-end" }}>
+                <View style={{ flex: 1 }}>
+                  <Input
+                    placeholder="Write a comment..."
+                    value={commentText}
+                    onChangeText={setCommentText}
+                    multiline
+                  />
+                </View>
+                <Button 
+                  title="Post" 
+                  onPress={handleAddComment} 
+                  loading={busyComment}
+                  style={{ height: 50, marginBottom: commentText.length > 30 ? 6 : 0 }} 
+                />
+              </View>
+            ) : null}
+          </View>
         </View>
       </ScrollView>
     </View>

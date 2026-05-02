@@ -15,7 +15,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [identityId, setIdentityId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -23,7 +23,7 @@ export default function LoginScreen() {
   const onSubmit = async () => {
     setError(null);
     setBusy(true);
-    const res = await login(email, password);
+    const res = await login(identityId, password);
     setBusy(false);
     if (!res.ok) {
       setError(res.error);
@@ -61,13 +61,12 @@ export default function LoginScreen() {
         </View>
         <View style={{ gap: 14 }}>
           <Input
-            label="Email"
-            iconLeft="mail"
-            placeholder="Email account"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
+            label="ID / NIC Number"
+            iconLeft="user"
+            placeholder="Enter Student ID or NIC"
+            value={identityId}
+            onChangeText={setIdentityId}
+            autoCapitalize="characters"
             autoCorrect={false}
           />
           <Input

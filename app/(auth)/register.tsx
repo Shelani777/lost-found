@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import { Select } from "@/components/Select";
+import { ImagePickerField } from "@/components/ImagePickerField";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/auth-context";
@@ -15,16 +17,41 @@ export default function RegisterScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { register } = useAuth();
+  const [identityId, setIdentityId] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState<string | null>(null);
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [avatar, setAvatar] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const onSubmit = async () => {
     setError(null);
     setBusy(true);
-    const res = await register(name, email, password);
+    const numAge = parseInt(age, 10);
+    if (!numAge || numAge < 1) {
+      setError("Please enter a valid age");
+      setBusy(false);
+      return;
+    }
+    if (!gender) {
+      setError("Please select a gender");
+      setBusy(false);
+      return;
+    }
+    const res = await register({
+      identityId,
+      name,
+      email,
+      age: numAge,
+      gender,
+      phone,
+      password,
+      avatar,
+    });
     setBusy(false);
     if (!res.ok) {
       setError(res.error);
@@ -63,6 +90,21 @@ export default function RegisterScreen() {
           />
         </View>
         <View style={{ gap: 14 }}>
+          <ImagePickerField
+            label="Profile Picture (Optional)"
+            value={avatar}
+            onChange={setAvatar}
+            helper="Tap to upload profile pic"
+            aspectRatio={1}
+          />
+          <Input
+            label="ID / NIC Number"
+            iconLeft="user"
+            placeholder="Student IT Number or NIC"
+            value={identityId}
+            onChangeText={setIdentityId}
+            autoCapitalize="characters"
+          />
           <Input
             label="Full Name"
             iconLeft="user"
@@ -80,6 +122,38 @@ export default function RegisterScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
+          />
+          <View style={{ flexDirection: "row", gap: 14 }}>
+            <View style={{ flex: 1 }}>
+              <Input
+                label="Age"
+                iconLeft="calendar"
+                placeholder="Age"
+                value={age}
+                onChangeText={setAge}
+                keyboardType="numeric"
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Select
+                label="Gender"
+                value={gender}
+                onChange={setGender}
+                options={[
+                  { label: "Male", value: "Male" },
+                  { label: "Female", value: "Female" },
+                  { label: "Other", value: "Other" },
+                ]}
+              />
+            </View>
+          </View>
+          <Input
+            label="Phone Number"
+            iconLeft="phone"
+            placeholder="Contact number"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
           />
           <Input
             label="Password"

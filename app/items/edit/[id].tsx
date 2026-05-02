@@ -25,6 +25,7 @@ export default function EditItemScreen() {
   const [location, setLocation] = useState(item?.location ?? "");
   const [contactNumber, setContactNumber] = useState(item?.contactNumber ?? "");
   const [image, setImage] = useState<string | undefined>(item?.image);
+  const [publicity, setPublicity] = useState<string>(item?.publicity ?? "everyone");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function EditItemScreen() {
     setLocation(item.location);
     setContactNumber(item.contactNumber);
     setImage(item.image);
+    setPublicity(item.publicity);
   }, [item?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const categoryOptions = useMemo(
@@ -60,6 +62,7 @@ export default function EditItemScreen() {
       location: location.trim(),
       contactNumber: contactNumber.trim(),
       image,
+      publicity: publicity as "everyone" | "students_only",
     });
     setBusy(false);
     router.back();
@@ -85,6 +88,15 @@ export default function EditItemScreen() {
           value={contactNumber}
           onChangeText={setContactNumber}
           keyboardType="phone-pad"
+        />
+        <Select
+          label="Who can see this?"
+          value={publicity}
+          onChange={setPublicity}
+          options={[
+            { label: "Everyone", value: "everyone", description: "Public post visible to all users" },
+            { label: "Students Only", value: "students_only", description: "Visible only to university students" },
+          ]}
         />
         <Button title="Save Changes" onPress={onSave} loading={busy} />
       </ScrollComp>

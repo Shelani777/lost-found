@@ -8,8 +8,13 @@ export type UserRole = "user" | "admin";
 
 export interface User {
   id: string;
+  identityId: string;
   name: string;
   email: string;
+  age: number;
+  gender: string;
+  phone: string;
+  userCategory: "student" | "other";
   passwordHash: string;
   avatar?: string;
   role: UserRole;
@@ -33,6 +38,9 @@ export interface Item {
   image?: string;
   contactNumber: string;
   status: ItemStatus;
+  publicity: "everyone" | "students_only";
+  likes: string[];
+  comments: { userId: string; text: string; createdAt: string }[];
   userId: string;
   createdAt: string;
 }

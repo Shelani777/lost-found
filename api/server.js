@@ -28,8 +28,13 @@ const baseOptions = {
 
 const userSchema = new mongoose.Schema(
   {
+    identityId: { type: String, required: true, unique: true, trim: true },
     name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    email: { type: String, required: true, lowercase: true, trim: true },
+    age: { type: Number, required: true },
+    gender: { type: String, required: true },
+    phone: { type: String, required: true },
+    userCategory: { type: String, enum: ["student", "other"], required: true },
     passwordHash: { type: String, required: true },
     avatar: { type: String, default: null },
     role: { type: String, enum: ["user", "admin"], default: "user" },
@@ -57,6 +62,13 @@ const itemSchema = new mongoose.Schema(
     image: { type: String, default: null },
     contactNumber: { type: String, required: true },
     status: { type: String, enum: ["open", "claimed", "closed"], default: "open" },
+    publicity: { type: String, enum: ["everyone", "students_only"], default: "everyone" },
+    likes: [{ type: String }],
+    comments: [{
+      userId: { type: String, required: true },
+      text: { type: String, required: true },
+      createdAt: { type: String, required: true }
+    }],
     userId: { type: String, required: true },
     createdAt: { type: String, required: true },
   },
@@ -141,24 +153,38 @@ app.get("/health", (_req, res) => {
 });
 
 app.post("/auth/register", async (req, res) => {
-  const { name, email, password } = req.body || {};
+  const { identityId, name, email, age, gender, phone, password, avatar } = req.body || {};
+  const cleanId = String(identityId || "").trim().toUpperCase();
   const cleanName = String(name || "").trim();
   const cleanEmail = String(email || "").trim().toLowerCase();
   const plainPassword = String(password || "");
+  const numAge = Number(age);
 
+  if (!cleanId) return res.status(400).json({ error: "Please enter your ID/NIC" });
   if (!cleanName) return res.status(400).json({ error: "Please enter your name" });
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) return res.status(400).json({ error: "Please enter a valid email" });
+  if (!cleanEmail) return res.status(400).json({ error: "Please enter a valid email" });
+  if (!numAge || numAge < 1) return res.status(400).json({ error: "Please enter a valid age" });
+  if (!gender) return res.status(400).json({ error: "Please select gender" });
+  if (!phone) return res.status(400).json({ error: "Please enter your phone number" });
   if (plainPassword.length < 6) return res.status(400).json({ error: "Password must be at least 6 characters" });
 
-  const exists = await User.findOne({ email: cleanEmail });
-  if (exists) return res.status(409).json({ error: "An account with that email already exists" });
+  const exists = await User.findOne({ identityId: cleanId });
+  if (exists) return res.status(409).json({ error: "An account with that ID already exists" });
+
+  const userCategory = (cleanId.startsWith("IT") && cleanId.length >= 8) ? "student" : "other";
 
   const count = await User.countDocuments({});
   const passwordHash = await bcrypt.hash(plainPassword, 10);
   const user = await User.create({
+    identityId: cleanId,
     name: cleanName,
     email: cleanEmail,
+    age: numAge,
+    gender: String(gender),
+    phone: String(phone),
+    userCategory,
     passwordHash,
+    avatar: avatar || null,
     role: count === 0 ? "admin" : "user",
     createdAt: new Date().toISOString(),
   });
@@ -170,13 +196,13 @@ app.post("/auth/register", async (req, res) => {
 });
 
 app.post("/auth/login", async (req, res) => {
-  const { email, password } = req.body || {};
-  const cleanEmail = String(email || "").trim().toLowerCase();
+  const { identityId, password } = req.body || {};
+  const cleanId = String(identityId || "").trim().toUpperCase();
   const plainPassword = String(password || "");
-  if (!cleanEmail || !plainPassword) return res.status(400).json({ error: "Email and password are required" });
+  if (!cleanId || !plainPassword) return res.status(400).json({ error: "ID/NIC and password are required" });
 
-  const user = await User.findOne({ email: cleanEmail });
-  if (!user) return res.status(404).json({ error: "No account found with that email" });
+  const user = await User.findOne({ identityId: cleanId });
+  if (!user) return res.status(404).json({ error: "No account found with that ID" });
 
   const ok = await bcrypt.compare(plainPassword, user.passwordHash);
   if (!ok) return res.status(401).json({ error: "Incorrect password" });
@@ -206,18 +232,28 @@ app.patch("/auth/me", authMiddleware, async (req, res) => {
   return res.json({ user: safeUser });
 });
 
-app.get("/bootstrap", authMiddleware, async (_req, res) => {
+app.get("/bootstrap", authMiddleware, async (req, res) => {
   let categories = await Category.find({}).lean();
   if (categories.length === 0) {
     await Category.insertMany(DEFAULT_CATEGORIES);
     categories = await Category.find({}).lean();
   }
 
-  const [items, claims, reports, announcements] = await Promise.all([
-    Item.find({}).sort({ _id: -1 }).lean(),
+  const user = await User.findById(req.user.id);
+  const isStudent = user?.userCategory === "student";
+  const isAdmin = user?.role === "admin";
+
+  let itemsQuery = {};
+  if (!isStudent && !isAdmin) {
+    itemsQuery = { publicity: { $ne: "students_only" } };
+  }
+
+  const [items, claims, reports, announcements, allUsers] = await Promise.all([
+    Item.find(itemsQuery).sort({ _id: -1 }).lean(),
     Claim.find({}).sort({ _id: -1 }).lean(),
     Report.find({}).sort({ _id: -1 }).lean(),
     Announcement.find({}).sort({ _id: -1 }).lean(),
+    User.find({}).lean(),
   ]);
 
   const serialize = (arr) =>
@@ -227,12 +263,19 @@ app.get("/bootstrap", authMiddleware, async (_req, res) => {
       _id: undefined,
     }));
 
+  const safeUsers = allUsers.map(u => {
+    const safe = { ...u, id: u._id.toString(), _id: undefined };
+    delete safe.passwordHash;
+    return safe;
+  });
+
   return res.json({
     categories: serialize(categories),
     items: serialize(items),
     claims: serialize(claims),
     reports: serialize(reports),
     announcements: serialize(announcements),
+    users: safeUsers,
   });
 });
 
@@ -266,6 +309,37 @@ createCrudRoutes("claims", Claim);
 createCrudRoutes("reports", Report);
 createCrudRoutes("announcements", Announcement);
 
+app.post("/items/:id/like", authMiddleware, async (req, res) => {
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).json({ error: "Item not found" });
+
+  const userId = req.user.id;
+  const likeIndex = item.likes.indexOf(userId);
+  if (likeIndex > -1) {
+    item.likes.splice(likeIndex, 1);
+  } else {
+    item.likes.push(userId);
+  }
+  await item.save();
+  return res.json(item.toJSON());
+});
+
+app.post("/items/:id/comment", authMiddleware, async (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: "Comment text required" });
+
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).json({ error: "Item not found" });
+
+  item.comments.push({
+    userId: req.user.id,
+    text,
+    createdAt: new Date().toISOString()
+  });
+  await item.save();
+  return res.json(item.toJSON());
+});
+
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: "Internal server error" });
@@ -273,8 +347,27 @@ app.use((err, _req, res, _next) => {
 
 async function start() {
   await mongoose.connect(MONGO_URI);
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`API running on http://localhost:${PORT}`);
+
+  const adminExists = await User.findOne({ identityId: "IV6859070" });
+  if (!adminExists) {
+    const adminHash = await bcrypt.hash("Admin@070", 10);
+    await User.create({
+      identityId: "IV6859070",
+      name: "System Admin",
+      email: "admin@lostfound.com",
+      age: 30,
+      gender: "Other",
+      phone: "0000000000",
+      userCategory: "other",
+      passwordHash: adminHash,
+      role: "admin",
+      createdAt: new Date().toISOString(),
+    });
+    console.log("Seeded Admin user (IV6859070)");
+  }
+
+  app.listen(4000, "0.0.0.0", () => {
+    console.log("API running on port 4000");
   });
 }
 
