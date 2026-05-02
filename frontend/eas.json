@@ -17,7 +17,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://chronicle-investment-dash-against.trycloudflare.com"
+        "EXPO_PUBLIC_API_URL": "http://172.20.10.2:4000"
       }
     },
     "production": {
