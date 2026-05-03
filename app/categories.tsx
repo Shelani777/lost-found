@@ -29,6 +29,8 @@ export default function CategoriesScreen() {
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | undefined>();
 
+
+   // Open modal for new category
   const openNew = () => {
     setEditing(null);
     setName("");
