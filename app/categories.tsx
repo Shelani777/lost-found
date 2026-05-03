@@ -15,6 +15,8 @@ import { Category } from "@/lib/storage";
 
 // Screen component for managing categories
 export default function CategoriesScreen() {
+
+  // Hooks for theme, navigation, auth, and data
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
