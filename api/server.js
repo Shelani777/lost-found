@@ -309,20 +309,7 @@ createCrudRoutes("claims", Claim);
 createCrudRoutes("reports", Report);
 createCrudRoutes("announcements", Announcement);
 
-app.post("/items/:id/like", authMiddleware, async (req, res) => {
-  const item = await Item.findById(req.params.id);
-  if (!item) return res.status(404).json({ error: "Item not found" });
 
-  const userId = req.user.id;
-  const likeIndex = item.likes.indexOf(userId);
-  if (likeIndex > -1) {
-    item.likes.splice(likeIndex, 1);
-  } else {
-    item.likes.push(userId);
-  }
-  await item.save();
-  return res.json(item.toJSON());
-});
 
 app.post("/items/:id/comment", authMiddleware, async (req, res) => {
   const { text } = req.body;
