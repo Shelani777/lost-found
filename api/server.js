@@ -324,7 +324,21 @@ app.post("/items/:id/like", authMiddleware, async (req, res) => {
   return res.json(item.toJSON());
 });
 
+app.post("/items/:id/comment", authMiddleware, async (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: "Comment text required" });
 
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).json({ error: "Item not found" });
+
+  item.comments.push({
+    userId: req.user.id,
+    text,
+    createdAt: new Date().toISOString()
+  });
+  await item.save();
+  return res.json(item.toJSON());
+});
 
 app.use((err, _req, res, _next) => {
   console.error(err);
