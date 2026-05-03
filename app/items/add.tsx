@@ -27,26 +27,7 @@ import { ItemType } from "@/lib/storage";
     return Object.keys(e).length === 0;
   };
 
-  const onSubmit = async () => {
-    if (!validate() || !user || !categoryId) return;
-    setBusy(true);
-    const item = await createItem({
-      type,
-      title: title.trim(),
-      description: description.trim(),
-      categoryId,
-      location: location.trim(),
-      contactNumber: contactNumber.trim(),
-      image,
-      publicity: publicity as "everyone" | "students_only",
-      likes: [],
-      comments: [],
-      userId: user.id,
-    });
-    setBusy(false);
-    router.replace(`/items/${item.id}` as never);
-  };
-
+  
   const ScrollComp = Platform.OS === "web" ? ScrollView : KeyboardAwareScrollViewCompat;
 
   return (
