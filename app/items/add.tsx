@@ -178,10 +178,3 @@ export default function AddItemScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  toggle: {
-    flexDirection: "row",
-    padding: 4,
-    gap: 4,
-  },
-});
