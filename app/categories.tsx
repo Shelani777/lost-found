@@ -12,7 +12,11 @@ import { useAuth } from "@/lib/auth-context";
 import { useData } from "@/lib/data-context";
 import { Category } from "@/lib/storage";
 
+
+// Screen component for managing categories
 export default function CategoriesScreen() {
+
+  // Hooks for theme, navigation, auth, and data
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -25,6 +29,8 @@ export default function CategoriesScreen() {
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | undefined>();
 
+
+   // Open modal for new category
   const openNew = () => {
     setEditing(null);
     setName("");

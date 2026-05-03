@@ -43,6 +43,7 @@ const userSchema = new mongoose.Schema(
   baseOptions,
 );
 
+// Defines the item categories available in the app (e.g., Electronics, ID Cards)
 const categorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
