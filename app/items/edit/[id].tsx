@@ -52,21 +52,6 @@ export default function EditItemScreen() {
     );
   }
 
-  const onSave = async () => {
-    if (!categoryId) return;
-    setBusy(true);
-    await updateItem(item.id, {
-      title: title.trim(),
-      description: description.trim(),
-      categoryId,
-      location: location.trim(),
-      contactNumber: contactNumber.trim(),
-      image,
-      publicity: publicity as "everyone" | "students_only",
-    });
-    setBusy(false);
-    router.back();
-  };
 
   const ScrollComp = Platform.OS === "web" ? ScrollView : KeyboardAwareScrollViewCompat;
 
