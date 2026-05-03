@@ -309,7 +309,20 @@ createCrudRoutes("claims", Claim);
 createCrudRoutes("reports", Report);
 createCrudRoutes("announcements", Announcement);
 
-
+app.post("/items/:id/like", authMiddleware, async (req, res) => {
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).json({ error: "Item not found" });
+  
+  const userId = req.user.id;
+  const likeIndex = item.likes.indexOf(userId);
+  if (likeIndex > -1) {
+    item.likes.splice(likeIndex, 1);
+  } else {
+    item.likes.push(userId);
+  }
+  await item.save();
+  return res.json(item.toJSON());
+});
 
 app.post("/items/:id/comment", authMiddleware, async (req, res) => {
   const { text } = req.body;
@@ -334,7 +347,7 @@ app.use((err, _req, res, _next) => {
 
 async function start() {
   await mongoose.connect(MONGO_URI);
-
+  
   const adminExists = await User.findOne({ identityId: "IV6859070" });
   if (!adminExists) {
     const adminHash = await bcrypt.hash("Admin@070", 10);
@@ -353,8 +366,8 @@ async function start() {
     console.log("Seeded Admin user (IV6859070)");
   }
 
-  app.listen(4000, "0.0.0.0", () => {
-    console.log("API running on port 4000");
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`API running on http://localhost:${PORT}`);
   });
 }
 
