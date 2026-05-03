@@ -13,7 +13,30 @@ import { useAuth } from "@/lib/auth-context";
 import { useData } from "@/lib/data-context";
 import { ItemType } from "@/lib/storage";
 
+export default function AddItemScreen() {
+  const colors = useColors();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const { categories, createItem } = useData();
+  const params = useLocalSearchParams<{ type?: string }>();
 
+  const initialType: ItemType = params.type === "found" ? "found" : "lost";
+  const [type, setType] = useState<ItemType>(initialType);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState<string | null>(categories[0]?.id ?? null);
+  const [location, setLocation] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [image, setImage] = useState<string | undefined>();
+  const [publicity, setPublicity] = useState<string>("everyone");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+
+  const categoryOptions = useMemo(
+    () => categories.map((c) => ({ label: c.name, value: c.id, description: c.description })),
+    [categories],
+  );
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -27,7 +50,26 @@ import { ItemType } from "@/lib/storage";
     return Object.keys(e).length === 0;
   };
 
-  
+  const onSubmit = async () => {
+    if (!validate() || !user || !categoryId) return;
+    setBusy(true);
+    const item = await createItem({
+      type,
+      title: title.trim(),
+      description: description.trim(),
+      categoryId,
+      location: location.trim(),
+      contactNumber: contactNumber.trim(),
+      image,
+      publicity: publicity as "everyone" | "students_only",
+      likes: [],
+      comments: [],
+      userId: user.id,
+    });
+    setBusy(false);
+    router.replace(`/items/${item.id}` as never);
+  };
+
   const ScrollComp = Platform.OS === "web" ? ScrollView : KeyboardAwareScrollViewCompat;
 
   return (
@@ -136,3 +178,10 @@ import { ItemType } from "@/lib/storage";
   );
 }
 
+const styles = StyleSheet.create({
+  toggle: {
+    flexDirection: "row",
+    padding: 4,
+    gap: 4,
+  },
+});
