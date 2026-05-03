@@ -28,6 +28,7 @@ const baseOptions = {
 
 const userSchema = new mongoose.Schema(
   {
+    _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
     identityId: { type: String, required: true, unique: true, trim: true },
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, lowercase: true, trim: true },
@@ -46,6 +47,7 @@ const userSchema = new mongoose.Schema(
 // Defines the item categories available in the app (e.g., Electronics, ID Cards)
 const categorySchema = new mongoose.Schema(
   {
+    _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
     name: { type: String, required: true },
     description: { type: String, default: "" },
     icon: { type: String, default: "tag" },
@@ -55,6 +57,7 @@ const categorySchema = new mongoose.Schema(
 
 const itemSchema = new mongoose.Schema(
   {
+    _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
     type: { type: String, enum: ["lost", "found"], required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
@@ -78,6 +81,7 @@ const itemSchema = new mongoose.Schema(
 
 const claimSchema = new mongoose.Schema(
   {
+    _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
     itemId: { type: String, required: true },
     userId: { type: String, required: true },
     message: { type: String, required: true },
@@ -91,6 +95,7 @@ const claimSchema = new mongoose.Schema(
 
 const reportSchema = new mongoose.Schema(
   {
+    _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
     itemId: { type: String, required: true },
     userId: { type: String, required: true },
     reason: { type: String, required: true },
@@ -104,6 +109,7 @@ const reportSchema = new mongoose.Schema(
 
 const announcementSchema = new mongoose.Schema(
   {
+    _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
     title: { type: String, required: true },
     description: { type: String, required: true },
     image: { type: String, default: null },
@@ -121,15 +127,15 @@ const Report = mongoose.model("Report", reportSchema);
 const Announcement = mongoose.model("Announcement", announcementSchema);
 
 const DEFAULT_CATEGORIES = [
-  { name: "Electronics", description: "Phones, laptops, headphones, chargers", icon: "smartphone" },
-  { name: "Documents", description: "ID cards, certificates, papers", icon: "file-text" },
-  { name: "Keys", description: "Key sets, keycards, fobs", icon: "key" },
-  { name: "Wallet & Cards", description: "Wallets, purses, bank cards", icon: "credit-card" },
-  { name: "Bags", description: "Backpacks, handbags, briefcases", icon: "briefcase" },
-  { name: "Books & Notes", description: "Textbooks, notebooks, files", icon: "book" },
-  { name: "Clothing", description: "Jackets, hats, scarves", icon: "shopping-bag" },
-  { name: "Jewelry", description: "Rings, watches, necklaces", icon: "watch" },
-  { name: "Other", description: "Anything else", icon: "package" },
+  { _id: "cat-electronics", name: "Electronics", description: "Phones, laptops, headphones, chargers", icon: "smartphone" },
+  { _id: "cat-documents", name: "Documents", description: "ID cards, certificates, papers", icon: "file-text" },
+  { _id: "cat-keys", name: "Keys", description: "Key sets, keycards, fobs", icon: "key" },
+  { _id: "cat-wallet", name: "Wallet & Cards", description: "Wallets, purses, bank cards", icon: "credit-card" },
+  { _id: "cat-bag", name: "Bags", description: "Backpacks, handbags, briefcases", icon: "briefcase" },
+  { _id: "cat-books", name: "Books & Notes", description: "Textbooks, notebooks, files", icon: "book" },
+  { _id: "cat-clothing", name: "Clothing", description: "Jackets, hats, scarves", icon: "shopping-bag" },
+  { _id: "cat-jewelry", name: "Jewelry", description: "Rings, watches, necklaces", icon: "watch" },
+  { _id: "cat-other", name: "Other", description: "Anything else", icon: "package" },
 ];
 
 function authMiddleware(req, res, next) {
@@ -284,6 +290,10 @@ function createCrudRoutes(path, Model) {
   app.post(`/${path}`, authMiddleware, async (req, res) => {
     const payload = { ...req.body };
     if (!payload.createdAt) payload.createdAt = new Date().toISOString();
+    if (payload.id && !payload._id) {
+      payload._id = payload.id;
+      delete payload.id;
+    }
     const doc = await Model.create(payload);
     return res.json(doc.toJSON());
   });
