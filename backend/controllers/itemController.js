@@ -1,16 +1,50 @@
 const Item = require('../models/Item');
 const Claim = require('../models/Claim');
 const Report = require('../models/Report');
+const User = require('../models/User');
+
+async function getViewer(req) {
+  return User.findById(req.user.id).lean();
+}
+
+function canSeeStudentsOnly(user) {
+  return user?.role === 'admin' || user?.userCategory === 'student';
+}
+
+function applyVisibilityRule(payload, user) {
+  if (payload.publicity === 'students_only' && !canSeeStudentsOnly(user)) {
+    payload.publicity = 'everyone';
+  }
+  return payload;
+}
+
+async function findVisibleItem(req, res) {
+  const [item, user] = await Promise.all([Item.findById(req.params.id), getViewer(req)]);
+  if (!item) {
+    res.status(404).json({ error: 'Item not found' });
+    return null;
+  }
+  const owner = await User.findById(item.userId).lean();
+  const isAdminPost = owner?.role === 'admin';
+  if (item.publicity === 'students_only' && !isAdminPost && !canSeeStudentsOnly(user)) {
+    res.status(403).json({ error: 'This post is visible to students only' });
+    return null;
+  }
+  return item;
+}
 
 exports.create = async (req, res) => {
-  const payload = { ...req.body };
+  const user = await getViewer(req);
+  const payload = applyVisibilityRule({ ...req.body, userId: req.user.id }, user);
   if (!payload.createdAt) payload.createdAt = new Date().toISOString();
   const doc = await Item.create(payload);
   return res.json(doc.toJSON());
 };
 
 exports.update = async (req, res) => {
-  const doc = await Item.findByIdAndUpdate(req.params.id, req.body || {}, { new: true });
+  const user = await getViewer(req);
+  const patch = applyVisibilityRule({ ...(req.body || {}) }, user);
+  const doc = await Item.findByIdAndUpdate(req.params.id, patch, { new: true });
   if (!doc) return res.status(404).json({ error: 'Not found' });
   return res.json(doc.toJSON());
 };
@@ -23,8 +57,8 @@ exports.remove = async (req, res) => {
 };
 
 exports.like = async (req, res) => {
-  const item = await Item.findById(req.params.id);
-  if (!item) return res.status(404).json({ error: 'Item not found' });
+  const item = await findVisibleItem(req, res);
+  if (!item) return;
   const userId = req.user.id;
   const likeIndex = item.likes.indexOf(userId);
   if (likeIndex > -1) {
@@ -39,8 +73,8 @@ exports.like = async (req, res) => {
 exports.comment = async (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: 'Comment text required' });
-  const item = await Item.findById(req.params.id);
-  if (!item) return res.status(404).json({ error: 'Item not found' });
+  const item = await findVisibleItem(req, res);
+  if (!item) return;
   item.comments.push({
     userId: req.user.id,
     text,

@@ -9,12 +9,14 @@ import { Input } from "@/components/Input";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { Select } from "@/components/Select";
 import { useColors } from "@/hooks/useColors";
+import { useAuth } from "@/lib/auth-context";
 import { useData } from "@/lib/data-context";
 
 export default function EditItemScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getItem, categories, updateItem } = useData();
   const item = id ? getItem(id) : undefined;
@@ -27,6 +29,7 @@ export default function EditItemScreen() {
   const [image, setImage] = useState<string | undefined>(item?.image);
   const [publicity, setPublicity] = useState<string>(item?.publicity ?? "everyone");
   const [busy, setBusy] = useState(false);
+  const canPostStudentsOnly = user?.userCategory === "student" || user?.role === "admin";
 
   useEffect(() => {
     if (!item) return;
@@ -42,6 +45,16 @@ export default function EditItemScreen() {
   const categoryOptions = useMemo(
     () => categories.map((c) => ({ label: c.name, value: c.id })),
     [categories],
+  );
+
+  const publicityOptions = useMemo(
+    () => [
+      { label: "Everyone", value: "everyone", description: "Public post visible to all users" },
+      ...(canPostStudentsOnly
+        ? [{ label: "Students Only", value: "students_only", description: "Visible only to university students" }]
+        : []),
+    ],
+    [canPostStudentsOnly],
   );
 
   if (!item) {
@@ -62,7 +75,7 @@ export default function EditItemScreen() {
       location: location.trim(),
       contactNumber: contactNumber.trim(),
       image,
-      publicity: publicity as "everyone" | "students_only",
+      publicity: canPostStudentsOnly ? (publicity as "everyone" | "students_only") : "everyone",
     });
     setBusy(false);
     router.back();
@@ -93,10 +106,7 @@ export default function EditItemScreen() {
           label="Who can see this?"
           value={publicity}
           onChange={setPublicity}
-          options={[
-            { label: "Everyone", value: "everyone", description: "Public post visible to all users" },
-            { label: "Students Only", value: "students_only", description: "Visible only to university students" },
-          ]}
+          options={publicityOptions}
         />
         <Button title="Save Changes" onPress={onSave} loading={busy} />
       </ScrollComp>

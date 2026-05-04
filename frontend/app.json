@@ -8,7 +8,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "lost-found",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/icon.png",
       "resizeMode": "contain",
@@ -39,8 +39,9 @@
       "typedRoutes": false
     },
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "036cdb2d-d11d-4829-91a8-82a79680edd5"
+        "projectId": "2eb58008-ce71-413f-afc1-49895be9539d"
       }
     }
   }

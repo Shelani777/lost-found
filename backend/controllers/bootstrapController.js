@@ -18,7 +18,14 @@ exports.bootstrap = async (req, res) => {
 
   let itemsQuery = {};
   if (!isStudent && !isAdmin) {
-    itemsQuery = { publicity: { $ne: 'students_only' } };
+    const adminIds = await User.find({ role: 'admin' }).distinct('_id');
+    const adminUserIds = adminIds.map((id) => id.toString());
+    itemsQuery = {
+      $or: [
+        { publicity: { $ne: 'students_only' } },
+        { userId: { $in: adminUserIds } },
+      ],
+    };
   }
 
   const [items, claims, reports, announcements, allUsers] = await Promise.all([

@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextStyle,
   View,
   ViewStyle,
 } from "react-native";
@@ -25,6 +26,7 @@ interface Props {
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
   style?: ViewStyle;
+  textStyle?: TextStyle;
   fullWidth?: boolean;
   testID?: string;
 }
@@ -39,6 +41,7 @@ export function Button({
   iconLeft,
   iconRight,
   style,
+  textStyle,
   fullWidth = true,
   testID,
 }: Props) {
@@ -106,6 +109,7 @@ export function Button({
                 fontFamily: "Inter_700Bold",
                 fontSize,
                 letterSpacing: 0.3,
+                ...textStyle,
               }}
             >
               {title}

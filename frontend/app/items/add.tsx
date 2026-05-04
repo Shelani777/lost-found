@@ -32,10 +32,21 @@ export default function AddItemScreen() {
   const [publicity, setPublicity] = useState<string>("everyone");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const canPostStudentsOnly = user?.userCategory === "student" || user?.role === "admin";
 
   const categoryOptions = useMemo(
     () => categories.map((c) => ({ label: c.name, value: c.id, description: c.description })),
     [categories],
+  );
+
+  const publicityOptions = useMemo(
+    () => [
+      { label: "Everyone", value: "everyone", description: "Public post visible to all users" },
+      ...(canPostStudentsOnly
+        ? [{ label: "Students Only", value: "students_only", description: "Visible only to university students" }]
+        : []),
+    ],
+    [canPostStudentsOnly],
   );
 
   const validate = () => {
@@ -61,7 +72,7 @@ export default function AddItemScreen() {
       location: location.trim(),
       contactNumber: contactNumber.trim(),
       image,
-      publicity: publicity as "everyone" | "students_only",
+      publicity: canPostStudentsOnly ? (publicity as "everyone" | "students_only") : "everyone",
       likes: [],
       comments: [],
       userId: user.id,
@@ -166,10 +177,7 @@ export default function AddItemScreen() {
           label="Who can see this?"
           value={publicity}
           onChange={setPublicity}
-          options={[
-            { label: "Everyone", value: "everyone", description: "Public post visible to all users" },
-            { label: "Students Only", value: "students_only", description: "Visible only to university students" },
-          ]}
+          options={publicityOptions}
         />
 
         <Button title="Post Item" onPress={onSubmit} loading={busy} />

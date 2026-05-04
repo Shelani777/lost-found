@@ -17,7 +17,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://172.20.10.2:4000"
+        "EXPO_PUBLIC_API_URL": "https://lost-found-production-ad14.up.railway.app"
       }
     },
     "production": {

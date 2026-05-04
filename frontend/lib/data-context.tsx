@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { apiBootstrap, apiCreate, apiDelete, apiPatch, hasApiBaseUrl, ApiUser, apiLikeItem, apiCommentItem } from "./api";
+import { useAuth } from "./auth-context";
 import {
   Announcement,
   Category,
@@ -76,6 +77,7 @@ const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const useApi = hasApiBaseUrl();
+  const { user, isAdmin } = useAuth();
   const [state, setState] = useState<DataState>({
     ready: false,
     categories: [],
@@ -127,6 +129,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       active = false;
     };
   }, [useApi]);
+
+  const canViewItem = useCallback(
+    (item: Item) => {
+      if (isAdmin || user?.userCategory === "student") return true;
+      const owner = state.users.find((u) => u.id === item.userId);
+      if (owner?.role === "admin") return true;
+      return item.publicity !== "students_only";
+    },
+    [isAdmin, state.users, user?.userCategory],
+  );
+
+  const visibleItems = useMemo(
+    () => state.items.filter(canViewItem),
+    [state.items, canViewItem],
+  );
 
   // Generic persistence helper
   const persist = useCallback(
@@ -440,7 +457,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   );
 
   // Helpers
-  const getItem = useCallback((id: string) => state.items.find((i) => i.id === id), [state.items]);
+  const getItem = useCallback((id: string) => visibleItems.find((i) => i.id === id), [visibleItems]);
   const getCategory = useCallback(
     (id: string) => state.categories.find((c) => c.id === id),
     [state.categories],
@@ -453,7 +470,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const filterItems = useCallback<DataContextValue["filterItems"]>(
     ({ type = "all", categoryId = "all", query = "" }) => {
       const q = query.trim().toLowerCase();
-      return state.items.filter((i) => {
+      return visibleItems.filter((i) => {
         if (type !== "all" && i.type !== type) return false;
         if (categoryId !== "all" && i.categoryId !== categoryId) return false;
         if (q) {
@@ -463,12 +480,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         return true;
       });
     },
-    [state.items],
+    [visibleItems],
   );
 
   const value = useMemo<DataContextValue>(
     () => ({
       ...state,
+      items: visibleItems,
       createItem,
       updateItem,
       deleteItem,
@@ -496,6 +514,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }),
     [
       state,
+      visibleItems,
       createItem,
       updateItem,
       deleteItem,

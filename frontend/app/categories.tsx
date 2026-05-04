@@ -24,12 +24,14 @@ export default function CategoriesScreen() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | undefined>();
+  const [saving, setSaving] = useState(false);
 
   const openNew = () => {
     setEditing(null);
     setName("");
     setDescription("");
     setError(undefined);
+    setSaving(false);
     setModalOpen(true);
   };
 
@@ -38,20 +40,30 @@ export default function CategoriesScreen() {
     setName(cat.name);
     setDescription(cat.description ?? "");
     setError(undefined);
+    setSaving(false);
     setModalOpen(true);
   };
 
   const onSave = async () => {
+    if (saving) return;
     if (!name.trim()) {
       setError("Name is required");
       return;
     }
-    if (editing) {
-      await updateCategory(editing.id, { name: name.trim(), description: description.trim() });
-    } else {
-      await createCategory({ name: name.trim(), description: description.trim(), icon: "tag" });
+    setSaving(true);
+    setError(undefined);
+    try {
+      if (editing) {
+        await updateCategory(editing.id, { name: name.trim(), description: description.trim() });
+      } else {
+        await createCategory({ name: name.trim(), description: description.trim(), icon: "tag" });
+      }
+      setModalOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save category");
+    } finally {
+      setSaving(false);
     }
-    setModalOpen(false);
   };
 
   const onDelete = (cat: Category) => {
@@ -62,8 +74,20 @@ export default function CategoriesScreen() {
       Platform.OS === "web" ? window.alert(msg) : Alert.alert("Cannot delete", msg);
       return;
     }
-    const doIt = () => deleteCategory(cat.id);
-    if (Platform.OS === "web") return doIt();
+    const doIt = async () => {
+      try {
+        await deleteCategory(cat.id);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Could not delete category";
+        // @ts-ignore
+        Platform.OS === "web" ? window.alert(msg) : Alert.alert("Delete failed", msg);
+      }
+    };
+    if (Platform.OS === "web") {
+      // @ts-ignore
+      if (window.confirm(`Delete "${cat.name}"?`)) void doIt();
+      return;
+    }
     Alert.alert(`Delete "${cat.name}"?`, undefined, [
       { text: "Cancel", style: "cancel" },
       { text: "Delete", style: "destructive", onPress: doIt },
@@ -149,7 +173,8 @@ export default function CategoriesScreen() {
       </ScrollView>
 
       <Modal visible={modalOpen} transparent animationType="fade" onRequestClose={() => setModalOpen(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setModalOpen(false)}>
+        <View style={styles.modalBackdrop}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setModalOpen(false)} />
           <View style={[styles.modalSheet, { backgroundColor: "#1A0F2E", borderColor: "rgba(255,255,255,0.1)", borderWidth: 1, borderRadius: 28 }]}>
             <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 18 }}>
               {editing ? "Edit Category" : "New Category"}
@@ -163,11 +188,11 @@ export default function CategoriesScreen() {
                 <Button title="Cancel" variant="ghost" onPress={() => setModalOpen(false)} style={{ borderColor: "rgba(255,255,255,0.1)", borderWidth: 1 }} textStyle={{ color: "rgba(255,255,255,0.6)" }} />
               </View>
               <View style={{ flex: 1 }}>
-                <Button title={editing ? "Save" : "Create"} onPress={onSave} />
+                <Button title={editing ? "Save" : "Create"} onPress={onSave} loading={saving} disabled={saving} />
               </View>
             </View>
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </View>
   );
@@ -180,7 +205,6 @@ const styles = StyleSheet.create({
     gap: 16,
     padding: 16,
     borderWidth: 1,
-    backdropFilter: "blur(10px)",
   },
   modalBackdrop: {
     flex: 1,
@@ -190,6 +214,5 @@ const styles = StyleSheet.create({
   },
   modalSheet: {
     padding: 24,
-    backdropFilter: "blur(20px)",
   },
 });
