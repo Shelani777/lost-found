@@ -1,6 +1,6 @@
 # Lost & Found
 
-A full-stack Lost & Found application for posting lost or found items, browsing categories, submitting claims, reporting posts, and managing announcements through an admin area.
+  full-stack Lost & Found application for posting lost or found items, browsing categories, submitting claims, reporting posts, and managing announcements through an admin area.
 
 The project is split into:
 
