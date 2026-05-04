@@ -27,12 +27,13 @@ export function Input({
   const colors = useColors();
   const [focused, setFocused] = useState(false);
   const [show, setShow] = useState(false);
+
   const borderColor = error
     ? colors.destructive
     : focused
       ? colors.primary
       : colors.border;
-  const bg = colors.input;
+  const bg = focused ? colors.background : colors.input;
 
   return (
     <View style={[styles.wrap, containerStyle]}>
@@ -45,15 +46,26 @@ export function Input({
           {
             backgroundColor: bg,
             borderColor,
-            borderRadius: colors.radius - 2,
-            minHeight: multiline ? 110 : 50,
+            borderRadius: colors.radius,
+            minHeight: multiline ? 110 : 54,
             alignItems: multiline ? "flex-start" : "center",
-            paddingTop: multiline ? 12 : 0,
+            paddingTop: multiline ? 14 : 0,
+            shadowColor: focused ? colors.primary : "#000",
+            shadowOffset: { width: 0, height: focused ? 0 : 1 },
+            shadowOpacity: focused ? 0.12 : 0.04,
+            shadowRadius: focused ? 4 : 2,
+            elevation: focused ? 2 : 0,
           },
         ]}
       >
         {iconLeft ? (
-          <Feather name={iconLeft} size={18} color={colors.mutedForeground} style={{ marginRight: 10 }} />
+          <View style={styles.iconWrap}>
+            <Feather
+              name={iconLeft}
+              size={18}
+              color={focused ? colors.primary : colors.mutedForeground}
+            />
+          </View>
         ) : null}
         <TextInput
           {...props}
@@ -79,34 +91,53 @@ export function Input({
           }}
         />
         {isPassword ? (
-          <Pressable hitSlop={10} onPress={() => setShow((s) => !s)} style={{ paddingHorizontal: 6 }}>
+          <Pressable hitSlop={12} onPress={() => setShow((s) => !s)} style={styles.eyeBtn}>
             <Feather name={show ? "eye-off" : "eye"} size={18} color={colors.mutedForeground} />
           </Pressable>
         ) : null}
         {rightAdornment}
       </View>
       {error ? (
-        <Text style={[styles.error, { color: colors.destructive }]}>{error}</Text>
+        <View style={styles.errorRow}>
+          <Feather name="alert-circle" size={12} color={colors.destructive} />
+          <Text style={[styles.error, { color: colors.destructive }]}>{error}</Text>
+        </View>
       ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: 6 },
+  wrap: { gap: 7 },
   label: {
     fontSize: 14,
     fontFamily: "Inter_600SemiBold",
-    marginBottom: 2,
+    marginBottom: 1,
   },
   inputWrap: {
     flexDirection: "row",
-    paddingHorizontal: 14,
-    borderWidth: 1,
+    paddingHorizontal: 16,
+    borderWidth: 1.5,
+  },
+  iconWrap: {
+    marginRight: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 54,
+  },
+  eyeBtn: {
+    paddingHorizontal: 8,
+    justifyContent: "center",
+    height: 54,
+  },
+  errorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 1,
   },
   error: {
     fontSize: 12,
     fontFamily: "Inter_500Medium",
-    marginTop: 2,
   },
 });

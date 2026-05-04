@@ -36,7 +36,7 @@ interface AuthContextValue extends AuthState {
     avatar?: string;
   }) => Promise<{ ok: true } | { ok: false; error: string }>;
   logout: () => Promise<void>;
-  updateProfile: (patch: Partial<Pick<User, "name" | "avatar">>) => Promise<void>;
+  updateProfile: (patch: Partial<Pick<User, "name" | "avatar" | "email" | "phone">> & { password?: string }) => Promise<void>;
   isAdmin: boolean;
 }
 
@@ -170,7 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!state.user) return;
       if (useApi) {
         try {
-          const updated = await apiUpdateMe({ name: patch.name, avatar: patch.avatar });
+          const updated = await apiUpdateMe(patch);
           setState({ user: mapApiUser(updated), ready: true });
         } catch {
           // Keep local state when API patch fails.
@@ -178,12 +178,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       const users = await readJSON<User[]>(STORAGE_KEYS.users, []);
-      const next = users.map((u) =>
-        u.id === state.user!.id ? { ...u, ...patch } : u,
-      );
+      const next = users.map((u) => {
+        if (u.id !== state.user!.id) return u;
+        const updated = { ...u, ...patch };
+        if (patch.password) {
+          updated.passwordHash = hashPassword(patch.password);
+          delete (updated as any).password;
+        }
+        return updated;
+      });
       await writeJSON(STORAGE_KEYS.users, next);
-      const updated = next.find((u) => u.id === state.user!.id) ?? null;
-      setState({ user: updated, ready: true });
+      const updatedUser = next.find((u) => u.id === state.user!.id) ?? null;
+      setState({ user: updatedUser, ready: true });
     },
     [state.user, useApi],
   );

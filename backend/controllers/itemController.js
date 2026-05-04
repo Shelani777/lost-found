@@ -1,0 +1,51 @@
+const Item = require('../models/Item');
+const Claim = require('../models/Claim');
+const Report = require('../models/Report');
+
+exports.create = async (req, res) => {
+  const payload = { ...req.body };
+  if (!payload.createdAt) payload.createdAt = new Date().toISOString();
+  const doc = await Item.create(payload);
+  return res.json(doc.toJSON());
+};
+
+exports.update = async (req, res) => {
+  const doc = await Item.findByIdAndUpdate(req.params.id, req.body || {}, { new: true });
+  if (!doc) return res.status(404).json({ error: 'Not found' });
+  return res.json(doc.toJSON());
+};
+
+exports.remove = async (req, res) => {
+  await Item.findByIdAndDelete(req.params.id);
+  await Claim.deleteMany({ itemId: req.params.id });
+  await Report.deleteMany({ itemId: req.params.id });
+  return res.json({ ok: true });
+};
+
+exports.like = async (req, res) => {
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).json({ error: 'Item not found' });
+  const userId = req.user.id;
+  const likeIndex = item.likes.indexOf(userId);
+  if (likeIndex > -1) {
+    item.likes.splice(likeIndex, 1);
+  } else {
+    item.likes.push(userId);
+  }
+  await item.save();
+  return res.json(item.toJSON());
+};
+
+exports.comment = async (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Comment text required' });
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).json({ error: 'Item not found' });
+  item.comments.push({
+    userId: req.user.id,
+    text,
+    createdAt: new Date().toISOString(),
+  });
+  await item.save();
+  return res.json(item.toJSON());
+};

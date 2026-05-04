@@ -19,16 +19,18 @@ export function EmptyState({ icon = "inbox", title, description, children }: Pro
         style={[
           styles.iconCircle,
           {
-            backgroundColor: colors.primarySoft,
-            borderRadius: 100,
+            backgroundColor: "rgba(255,255,255,0.06)",
+            borderColor: "rgba(255,255,255,0.1)",
+            borderWidth: 1,
+            borderRadius: 24,
           },
         ]}
       >
-        <Feather name={icon} size={28} color={colors.primary} />
+        <Feather name={icon} size={32} color={colors.primary} />
       </View>
-      <Text style={[styles.title, { color: colors.foreground }]}>{title}</Text>
+      <Text style={[styles.title, { color: "#fff" }]}>{title}</Text>
       {description ? (
-        <Text style={[styles.description, { color: colors.mutedForeground }]}>
+        <Text style={[styles.description, { color: "rgba(255,255,255,0.5)" }]}>
           {description}
         </Text>
       ) : null}
@@ -41,27 +43,29 @@ const styles = StyleSheet.create({
   wrap: {
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 36,
-    gap: 10,
+    paddingHorizontal: 32,
+    paddingVertical: 48,
+    gap: 12,
   },
   iconCircle: {
-    width: 64,
-    height: 64,
+    width: 72,
+    height: 72,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 6,
+    marginBottom: 8,
+    backdropFilter: "blur(10px)",
   },
   title: {
     fontFamily: "Inter_700Bold",
-    fontSize: 17,
+    fontSize: 20,
     textAlign: "center",
+    letterSpacing: -0.5,
   },
   description: {
     fontFamily: "Inter_400Regular",
-    fontSize: 14,
+    fontSize: 15,
     textAlign: "center",
-    lineHeight: 20,
-    maxWidth: 320,
+    lineHeight: 22,
+    maxWidth: 280,
   },
 });

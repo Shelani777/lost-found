@@ -76,7 +76,7 @@ export async function apiMe() {
   return data.user;
 }
 
-export async function apiUpdateMe(patch: { name?: string; avatar?: string }) {
+export async function apiUpdateMe(patch: { name?: string; avatar?: string; email?: string; phone?: string; password?: string }) {
   const data = await request<{ user: ApiUser }>("/auth/me", {
     method: "PATCH",
     body: JSON.stringify(patch),

@@ -1,97 +1,97 @@
 const colors = {
   light: {
-    text: "#1a1f36",
-    tint: "#5b6fe0",
+    text: "#1E0B3B",
+    tint: "#9B45E4",
 
-    background: "#ffffff",
-    foreground: "#1a1f36",
+    background: "#F4EFFC", // Soft lavender
+    foreground: "#1E0B3B",
 
-    card: "#f7f8fc",
-    cardForeground: "#1a1f36",
+    card: "#FFFFFF",
+    cardForeground: "#1E0B3B",
 
-    primary: "#5b6fe0",
+    primary: "#9B45E4",
     primaryForeground: "#ffffff",
-    primaryDark: "#4a5dc7",
-    primarySoft: "#eef0fb",
+    primaryDark: "#7A2EBE",
+    primarySoft: "#EAE0F8",
 
-    secondary: "#f3f4f8",
-    secondaryForeground: "#1a1f36",
+    secondary: "#EAE0F8",
+    secondaryForeground: "#1E0B3B",
 
-    muted: "#f3f4f8",
-    mutedForeground: "#6b7280",
+    muted: "#EAE0F8",
+    mutedForeground: "#8672A1",
 
-    accent: "#eef0fb",
-    accentForeground: "#5b6fe0",
+    accent: "#FF69B4",
+    accentForeground: "#ffffff",
 
-    destructive: "#ef4757",
+    destructive: "#FF4D6D",
     destructiveForeground: "#ffffff",
-    destructiveSoft: "#fdecee",
+    destructiveSoft: "#FFE6EA",
 
-    success: "#10b981",
-    successSoft: "#dcfce7",
+    success: "#00E676",
+    successSoft: "#E0FBEA",
 
-    warning: "#f59e0b",
-    warningSoft: "#fef3c7",
+    warning: "#FFAB00",
+    warningSoft: "#FFF4E5",
 
-    border: "#e5e7eb",
-    input: "#f3f4f8",
+    border: "#E2D8F0",
+    input: "#FFFFFF",
 
-    lost: "#ef4757",
-    lostSoft: "#fdecee",
-    found: "#5b6fe0",
-    foundSoft: "#eef0fb",
+    lost: "#FF4D6D",
+    lostSoft: "#FFE6EA",
+    found: "#9B45E4",
+    foundSoft: "#EAE0F8",
 
-    statusOpen: "#5b6fe0",
-    statusClaimed: "#f59e0b",
-    statusClosed: "#6b7280",
+    statusOpen: "#9B45E4",
+    statusClaimed: "#FFAB00",
+    statusClosed: "#8672A1",
   },
   dark: {
-    text: "#ffffff",
-    tint: "#7a8eed",
+    text: "#F8F5FF",
+    tint: "#B92B8A",
 
-    background: "#121212",
-    foreground: "#ffffff",
+    background: "#0B041C", // Deep space violet
+    foreground: "#F8F5FF",
 
-    card: "#1e1e1e",
-    cardForeground: "#ffffff",
+    card: "#1C1138", // Slightly elevated purple/navy
+    cardForeground: "#F8F5FF",
 
-    primary: "#7a8eed",
+    primary: "#B92B8A", // Neon magenta
     primaryForeground: "#ffffff",
-    primaryDark: "#5b6fe0",
-    primarySoft: "#2a2d45",
+    primaryDark: "#8E1E66",
+    primarySoft: "rgba(185, 43, 138, 0.2)",
 
-    secondary: "#2a2a2a",
-    secondaryForeground: "#ffffff",
+    secondary: "rgba(255, 255, 255, 0.08)", // Glassmorphic base
+    secondaryForeground: "#F8F5FF",
 
-    muted: "#2a2a2a",
-    mutedForeground: "#a1a1aa",
+    muted: "#2C1F4A",
+    mutedForeground: "#A28DC2",
 
-    accent: "#2a2d45",
-    accentForeground: "#7a8eed",
+    accent: "#9B45E4", // Neon purple
+    accentForeground: "#ffffff",
 
-    destructive: "#f87171",
+    destructive: "#FF3366",
     destructiveForeground: "#ffffff",
-    destructiveSoft: "#3f1c1c",
+    destructiveSoft: "rgba(255, 51, 102, 0.2)",
 
-    success: "#34d399",
-    successSoft: "#133524",
+    success: "#00E676",
+    successSoft: "rgba(0, 230, 118, 0.2)",
 
-    warning: "#fbbf24",
-    warningSoft: "#3f300f",
+    warning: "#FFAB00",
+    warningSoft: "rgba(255, 171, 0, 0.2)",
 
-    border: "#333333",
-    input: "#2a2a2a",
+    border: "rgba(255, 255, 255, 0.12)", // Glassmorphic border
+    input: "rgba(0, 0, 0, 0.3)", // Deep inputs
 
-    lost: "#f87171",
-    lostSoft: "#3f1c1c",
-    found: "#7a8eed",
-    foundSoft: "#2a2d45",
+    lost: "#FF3366",
+    lostSoft: "rgba(255, 51, 102, 0.2)",
+    found: "#B92B8A",
+    foundSoft: "rgba(185, 43, 138, 0.2)",
 
-    statusOpen: "#7a8eed",
-    statusClaimed: "#fbbf24",
-    statusClosed: "#a1a1aa",
+    statusOpen: "#B92B8A",
+    statusClaimed: "#FFAB00",
+    statusClosed: "#A28DC2",
   },
-  radius: 14,
+  radius: 24, // High border radius for cartoon/soft look
 };
 
 export default colors;

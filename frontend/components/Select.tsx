@@ -35,7 +35,7 @@ export function Select({ label, placeholder = "Select", value, options, onChange
           styles.field,
           {
             backgroundColor: colors.input,
-            borderColor: error ? colors.destructive : colors.border,
+            borderColor: error ? colors.destructive : "transparent",
             borderRadius: colors.radius - 2,
             opacity: pressed ? 0.85 : 1,
           },

@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Avatar } from "@/components/Avatar";
@@ -29,10 +29,11 @@ function Row({ icon, label, description, onPress, badge, iconBg, iconFg, destruc
       style={({ pressed }) => [
         styles.row,
         {
-          backgroundColor: colors.background,
-          borderColor: colors.border,
-          borderRadius: colors.radius,
-          opacity: pressed ? 0.92 : 1,
+          backgroundColor: "rgba(255,255,255,0.06)",
+          borderColor: "rgba(255,255,255,0.1)",
+          borderRadius: 20,
+          opacity: pressed ? 0.85 : 1,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
         },
       ]}
     >
@@ -40,17 +41,17 @@ function Row({ icon, label, description, onPress, badge, iconBg, iconFg, destruc
         style={[
           styles.rowIcon,
           {
-            backgroundColor: iconBg ?? colors.primarySoft,
-            borderRadius: 10,
+            backgroundColor: iconBg ?? "rgba(255,255,255,0.08)",
+            borderRadius: 14,
           },
         ]}
       >
-        <Feather name={icon} size={18} color={iconFg ?? colors.primary} />
+        <Feather name={icon} size={20} color={iconFg ?? "#fff"} />
       </View>
       <View style={{ flex: 1 }}>
         <Text
           style={{
-            color: destructive ? colors.destructive : colors.foreground,
+            color: destructive ? colors.destructive : "#fff",
             fontFamily: "Inter_600SemiBold",
             fontSize: 15,
           }}
@@ -58,7 +59,7 @@ function Row({ icon, label, description, onPress, badge, iconBg, iconFg, destruc
           {label}
         </Text>
         {description ? (
-          <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_400Regular", fontSize: 12, marginTop: 2 }}>
+          <Text style={{ color: "rgba(255,255,255,0.5)", fontFamily: "Inter_400Regular", fontSize: 12, marginTop: 2 }}>
             {description}
           </Text>
         ) : null}
@@ -66,16 +67,18 @@ function Row({ icon, label, description, onPress, badge, iconBg, iconFg, destruc
       {badge !== undefined ? (
         <View
           style={{
-            backgroundColor: colors.primarySoft,
+            backgroundColor: colors.primary,
             paddingHorizontal: 10,
-            paddingVertical: 3,
+            paddingVertical: 4,
             borderRadius: 10,
           }}
         >
-          <Text style={{ color: colors.primary, fontFamily: "Inter_700Bold", fontSize: 12 }}>{badge}</Text>
+          <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 12 }}>{badge}</Text>
         </View>
       ) : (
-        <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+        <View style={[styles.chevronWrap, { backgroundColor: "rgba(255,255,255,0.08)" }]}>
+          <Feather name="chevron-right" size={15} color="rgba(255,255,255,0.4)" />
+        </View>
       )}
     </Pressable>
   );
@@ -115,103 +118,140 @@ export default function MoreScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: "#0B041C" }}>
+      {/* Background Ambient Gradients */}
+      <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]}>
+        <View style={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: 150, backgroundColor: colors.primary, opacity: 0.15, filter: 'blur(50px)' }} />
+        <View style={{ position: 'absolute', bottom: 100, left: -150, width: 400, height: 400, borderRadius: 200, backgroundColor: colors.tint, opacity: 0.1, filter: 'blur(60px)' }} />
+      </View>
+
       <ScrollView
         contentContainerStyle={{
           paddingTop: headerTopPadding,
           paddingHorizontal: 18,
           paddingBottom: tabBarSpace + 16,
-          gap: 18,
+          gap: 24,
         }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={{ color: colors.foreground, fontFamily: "Inter_700Bold", fontSize: 24 }}>More</Text>
+        <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 28, letterSpacing: -0.5 }}>More</Text>
 
         <View
           style={[
             styles.profileCard,
-            { backgroundColor: colors.primary, borderRadius: colors.radius + 4 },
+            { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.15)", borderWidth: 1, borderRadius: 28 },
           ]}
         >
-          <Avatar name={user?.name ?? "?"} uri={user?.avatar} size={56} />
+          <TouchableOpacity 
+            style={styles.avatarRing}
+            onPress={() => router.push("/profile/edit" as never)}
+          >
+            <Avatar name={user?.name ?? "?"} uri={user?.avatar} size={64} />
+          </TouchableOpacity>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 18 }}>{user?.name}</Text>
-            <Text style={{ color: "rgba(255,255,255,0.85)", fontFamily: "Inter_400Regular", fontSize: 13, marginTop: 2 }}>
-              {user?.email}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <TouchableOpacity 
+                style={{ flex: 1 }}
+                onPress={() => router.push("/profile/edit" as never)}
+              >
+                <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 20 }}>{user?.name}</Text>
+                <Text style={{ color: "rgba(255,255,255,0.6)", fontFamily: "Inter_400Regular", fontSize: 13, marginTop: 2 }}>
+                  {user?.email}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => router.push("/profile/edit" as never)}
+                style={{ 
+                  backgroundColor: 'rgba(255,255,255,0.1)', 
+                  padding: 8, 
+                  borderRadius: 10,
+                  borderColor: 'rgba(255,255,255,0.2)',
+                  borderWidth: 1
+                }}
+              >
+                <Feather name="edit-2" size={16} color="#fff" />
+              </TouchableOpacity>
+            </View>
             {isAdmin ? (
               <View
                 style={{
-                  marginTop: 6,
+                  marginTop: 10,
                   alignSelf: "flex-start",
-                  backgroundColor: "rgba(255,255,255,0.2)",
-                  paddingHorizontal: 8,
-                  paddingVertical: 3,
-                  borderRadius: 6,
+                  backgroundColor: "rgba(185, 43, 138, 0.2)",
+                  borderColor: "rgba(185, 43, 138, 0.4)",
+                  borderWidth: 1,
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: 8,
                 }}
               >
-                <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 11, letterSpacing: 0.4 }}>ADMIN</Text>
+                <Text style={{ color: colors.primary, fontFamily: "Inter_700Bold", fontSize: 10, letterSpacing: 1 }}>ADMIN</Text>
               </View>
             ) : null}
+          </View>
+          {/* Stats */}
+          <View style={[styles.statBubble, { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.1)", borderWidth: 1 }]}>
+            <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 20 }}>{myItems}</Text>
+            <Text style={{ color: "rgba(255,255,255,0.5)", fontFamily: "Inter_400Regular", fontSize: 10 }}>Posts</Text>
           </View>
         </View>
 
         <View>
-          <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>MY ACTIVITY</Text>
-          <View style={{ gap: 10, marginTop: 8 }}>
+          <Text style={[styles.sectionLabel, { color: "rgba(255,255,255,0.4)" }]}>MY ACTIVITY</Text>
+          <View style={{ gap: 12, marginTop: 12 }}>
             <Row
               icon="edit-3"
               label="My Posts"
               description={`${myItems} item${myItems === 1 ? "" : "s"}`}
               onPress={() => router.push("/my-posts" as never)}
-              iconBg={colors.warningSoft}
-              iconFg={colors.warning}
+              iconBg="rgba(255, 171, 0, 0.15)"
+              iconFg="#FFAB00"
             />
             <Row
               icon="message-square"
               label="My Claim Requests"
               description={`${myClaims} claim${myClaims === 1 ? "" : "s"}`}
               onPress={() => router.push("/claims" as never)}
-              iconBg={colors.foundSoft}
-              iconFg={colors.found}
+              iconBg="rgba(0, 184, 217, 0.15)"
+              iconFg="#00B8D9"
             />
             <Row
               icon="flag"
               label="My Reports"
               description="Issues you have raised"
               onPress={() => router.push("/reports" as never)}
-              iconBg="#fdecee"
-              iconFg={colors.destructive}
+              iconBg="rgba(255, 86, 48, 0.15)"
+              iconFg="#FF5630"
             />
           </View>
         </View>
 
         <View>
-          <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>EXPLORE</Text>
-          <View style={{ gap: 10, marginTop: 8 }}>
+          <Text style={[styles.sectionLabel, { color: "rgba(255,255,255,0.4)" }]}>EXPLORE</Text>
+          <View style={{ gap: 12, marginTop: 12 }}>
             <Row
               icon="bell"
               label="Announcements"
               description={`${announcements.length} active`}
               onPress={() => router.push("/announcements" as never)}
-              iconBg={colors.primarySoft}
-              iconFg={colors.primary}
+              iconBg="rgba(101, 84, 192, 0.15)"
+              iconFg="#6554C0"
             />
             <Row
               icon="grid"
               label="Categories"
               description="Browse categories"
               onPress={() => router.push("/categories" as never)}
-              iconBg="#f3eafc"
-              iconFg="#8b5cf6"
+              iconBg="rgba(54, 179, 126, 0.15)"
+              iconFg="#36B37E"
             />
           </View>
         </View>
 
         {isAdmin ? (
           <View>
-            <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>ADMINISTRATOR</Text>
-            <View style={{ gap: 10, marginTop: 8 }}>
+            <Text style={[styles.sectionLabel, { color: "rgba(255,255,255,0.4)" }]}>ADMINISTRATOR</Text>
+            <View style={{ gap: 12, marginTop: 12 }}>
               <Row
                 icon="shield"
                 label="Admin Dashboard"
@@ -237,8 +277,8 @@ export default function MoreScreen() {
         ) : null}
 
         <View>
-          <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>PREFERENCES</Text>
-          <View style={{ gap: 10, marginTop: 8 }}>
+          <Text style={[styles.sectionLabel, { color: "rgba(255,255,255,0.4)" }]}>PREFERENCES</Text>
+          <View style={{ gap: 12, marginTop: 12 }}>
             <Row
               icon={mode === "dark" ? "moon" : mode === "light" ? "sun" : "smartphone"}
               label="Theme"
@@ -247,21 +287,21 @@ export default function MoreScreen() {
                 const next = mode === "light" ? "dark" : mode === "dark" ? "system" : "light";
                 setMode(next);
               }}
-              iconBg={colors.primarySoft}
-              iconFg={colors.primary}
+              iconBg="rgba(255, 255, 255, 0.1)"
+              iconFg="#fff"
             />
           </View>
         </View>
 
         <View>
-          <Text style={[styles.sectionLabel, { color: colors.mutedForeground }]}>ACCOUNT</Text>
-          <View style={{ gap: 10, marginTop: 8 }}>
+          <Text style={[styles.sectionLabel, { color: "rgba(255,255,255,0.4)" }]}>ACCOUNT</Text>
+          <View style={{ gap: 12, marginTop: 12 }}>
             <Row
               icon="log-out"
               label="Log out"
               onPress={onLogout}
-              iconBg={colors.destructiveSoft}
-              iconFg={colors.destructive}
+              iconBg="rgba(255, 86, 48, 0.15)"
+              iconFg="#FF5630"
               destructive
             />
           </View>
@@ -275,21 +315,42 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    padding: 14,
+    gap: 16,
+    padding: 16,
     borderWidth: 1,
+    backdropFilter: "blur(10px)",
   },
   rowIcon: {
-    width: 38,
-    height: 38,
+    width: 46,
+    height: 46,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  chevronWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
   },
   profileCard: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    padding: 16,
+    gap: 16,
+    padding: 24,
+    backdropFilter: "blur(20px)",
   },
-  sectionLabel: { fontFamily: "Inter_700Bold", fontSize: 11, letterSpacing: 0.6 },
+  avatarRing: {
+    borderRadius: 38,
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.2)",
+    padding: 4,
+  },
+  statBubble: {
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 18,
+  },
+  sectionLabel: { fontFamily: "Inter_700Bold", fontSize: 12, letterSpacing: 1.2, marginLeft: 4 },
 });

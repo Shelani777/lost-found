@@ -40,19 +40,25 @@ export function ItemsTab({ type }: { type: ItemType }) {
   const accentFg = type === "lost" ? colors.lost : colors.found;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, backgroundColor: "#0B041C" }}>
+      {/* Background Ambient Gradients */}
+      <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]}>
+        <View style={{ position: 'absolute', top: -100, left: -100, width: 300, height: 300, borderRadius: 150, backgroundColor: accentFg, opacity: 0.15, filter: 'blur(50px)' }} />
+        <View style={{ position: 'absolute', bottom: 100, right: -150, width: 400, height: 400, borderRadius: 200, backgroundColor: colors.primary, opacity: 0.1, filter: 'blur(60px)' }} />
+      </View>
+
       <View
         style={[
           styles.header,
-          { paddingTop: headerTopPadding, backgroundColor: colors.background, borderBottomColor: colors.border },
+          { paddingTop: headerTopPadding },
         ]}
       >
         <View style={styles.headerRow}>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_600SemiBold", fontSize: 12, letterSpacing: 0.4 }}>
+            <Text style={{ color: "rgba(255,255,255,0.6)", fontFamily: "Inter_600SemiBold", fontSize: 12, letterSpacing: 0.4 }}>
               {type === "lost" ? "LOST ITEMS" : "FOUND ITEMS"}
             </Text>
-            <Text style={{ color: colors.foreground, fontFamily: "Inter_700Bold", fontSize: 24, marginTop: 2 }}>
+            <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 26, marginTop: 2 }}>
               {type === "lost" ? "Help find them" : "Reunite them"}
             </Text>
           </View>
@@ -60,25 +66,25 @@ export function ItemsTab({ type }: { type: ItemType }) {
             onPress={() => router.push({ pathname: "/items/add", params: { type } } as never)}
             style={({ pressed }) => [
               styles.addBtn,
-              { backgroundColor: accentBg, opacity: pressed ? 0.8 : 1 },
+              { backgroundColor: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.15)", borderWidth: 1, opacity: pressed ? 0.8 : 1 },
             ]}
           >
-            <Feather name="plus" size={20} color={accentFg} />
+            <Feather name="plus" size={24} color={accentFg} />
           </Pressable>
         </View>
 
-        <View style={[styles.searchBox, { backgroundColor: colors.input, borderColor: colors.border }]}>
-          <Feather name="search" size={18} color={colors.mutedForeground} />
+        <View style={[styles.searchBox, { backgroundColor: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }]}>
+          <Feather name="search" size={18} color="rgba(255,255,255,0.4)" />
           <TextInput
             value={query}
             onChangeText={setQuery}
             placeholder={`Search ${type} items...`}
-            placeholderTextColor={colors.mutedForeground}
+            placeholderTextColor="rgba(255,255,255,0.4)"
             style={{
               flex: 1,
-              color: colors.foreground,
+              color: "#fff",
               fontFamily: "Inter_400Regular",
-              fontSize: 14,
+              fontSize: 15,
               paddingVertical: 0,
             }}
           />
@@ -87,7 +93,7 @@ export function ItemsTab({ type }: { type: ItemType }) {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 18, gap: 8, paddingTop: 12 }}
+          contentContainerStyle={{ paddingHorizontal: 18, gap: 10, paddingTop: 16 }}
         >
           <FilterChip
             label="All"
@@ -108,9 +114,10 @@ export function ItemsTab({ type }: { type: ItemType }) {
       <FlatList
         data={items}
         keyExtractor={(i) => i.id}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: tabBarSpace + 16, gap: 10 }}
+        contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 14, paddingBottom: tabBarSpace + 16, gap: 16 }}
         renderItem={({ item }) => <ItemCard item={item} />}
         scrollEnabled={items.length > 0}
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <EmptyState
             icon={type === "lost" ? "search" : "check-circle"}
@@ -142,18 +149,20 @@ function FilterChip({
       onPress={onPress}
       style={({ pressed }) => [
         {
-          paddingHorizontal: 14,
-          paddingVertical: 8,
-          borderRadius: 999,
-          backgroundColor: active ? colors.primary : colors.muted,
+          paddingHorizontal: 18,
+          paddingVertical: 10,
+          borderRadius: 16,
+          backgroundColor: active ? colors.primary : "rgba(255,255,255,0.06)",
+          borderColor: active ? colors.primary : "rgba(255,255,255,0.1)",
+          borderWidth: 1,
           opacity: pressed ? 0.85 : 1,
         },
       ]}
     >
       <Text
         style={{
-          color: active ? colors.primaryForeground : colors.foreground,
-          fontFamily: "Inter_600SemiBold",
+          color: active ? "#fff" : "rgba(255,255,255,0.6)",
+          fontFamily: active ? "Inter_700Bold" : "Inter_500Medium",
           fontSize: 13,
         }}
       >
@@ -165,31 +174,31 @@ function FilterChip({
 
 const styles = StyleSheet.create({
   header: {
-    paddingBottom: 8,
-    borderBottomWidth: 1,
+    paddingBottom: 12,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 18,
     gap: 12,
-    marginBottom: 14,
+    marginBottom: 20,
   },
   addBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
+    backdropFilter: "blur(10px)",
   },
   searchBox: {
     marginHorizontal: 18,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    height: 46,
-    borderRadius: 12,
-    paddingHorizontal: 14,
+    gap: 12,
+    height: 52,
+    borderRadius: 16,
+    paddingHorizontal: 16,
     borderWidth: 1,
   },
 });

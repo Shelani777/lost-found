@@ -68,7 +68,7 @@ export function Button({
         : variant === "secondary"
           ? colors.primary
           : colors.primary;
-  const height = size === "lg" ? 54 : size === "md" ? 46 : 38;
+  const height = size === "lg" ? 56 : size === "md" ? 46 : 38;
   const fontSize = size === "lg" ? 16 : size === "md" ? 15 : 14;
 
   return (
@@ -81,9 +81,14 @@ export function Button({
           backgroundColor: bg,
           borderRadius: colors.radius,
           height,
-          opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1,
-          transform: [{ scale: pressed && !isDisabled ? 0.99 : 1 }],
+          opacity: isDisabled ? 0.5 : pressed ? 0.88 : 1,
+          transform: [{ scale: pressed && !isDisabled ? 0.98 : 1 }],
           alignSelf: fullWidth ? "stretch" : "flex-start",
+          shadowColor: variant === "primary" ? colors.primary : "#000",
+          shadowOffset: { width: 0, height: variant === "primary" ? 4 : 2 },
+          shadowOpacity: variant === "primary" ? 0.3 : 0.08,
+          shadowRadius: variant === "primary" ? 12 : 6,
+          elevation: variant === "primary" ? 6 : 2,
         },
         styles.base,
         style,
@@ -98,9 +103,9 @@ export function Button({
             <Text
               style={{
                 color: fg,
-                fontFamily: "Inter_600SemiBold",
+                fontFamily: "Inter_700Bold",
                 fontSize,
-                letterSpacing: 0.2,
+                letterSpacing: 0.3,
               }}
             >
               {title}

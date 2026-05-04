@@ -9,6 +9,7 @@ import { useColors } from "@/hooks/useColors";
 import { useData } from "@/lib/data-context";
 import { useAuth } from "@/lib/auth-context";
 import { Item, formatRelative } from "@/lib/storage";
+import { useTheme } from "@/lib/theme-context";
 
 interface Props {
   item: Item;
@@ -17,10 +18,11 @@ interface Props {
 
 export function ItemCard({ item, compact = false }: Props) {
   const colors = useColors();
+  const { isDark } = useTheme();
   const router = useRouter();
   const { getCategory, users, likeItem } = useData();
   const { user } = useAuth();
-  
+
   const category = getCategory(item.categoryId);
   const author = users?.find(u => u.id === item.userId);
   const isLiked = user && item.likes ? item.likes.includes(user.id) : false;
@@ -41,7 +43,18 @@ export function ItemCard({ item, compact = false }: Props) {
   };
 
   const publicityIcon = item.publicity === "students_only" ? "users" : "globe";
-  const publicityLabel = item.publicity === "students_only" ? "Students" : "Public";
+
+  const neumorphicStyle = {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.15)",
+    borderWidth: 1,
+    backdropFilter: "blur(20px)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 5,
+  };
 
   if (compact) {
     return (
@@ -49,12 +62,11 @@ export function ItemCard({ item, compact = false }: Props) {
         onPress={() => router.push(`/items/${item.id}` as never)}
         style={({ pressed }) => [
           styles.cardCompact,
+          neumorphicStyle,
           {
-            backgroundColor: colors.background,
-            borderColor: colors.border,
-            borderRadius: colors.radius,
-            opacity: pressed ? 0.92 : 1,
-            transform: [{ scale: pressed ? 0.995 : 1 }],
+            borderRadius: 20,
+            opacity: pressed ? 0.85 : 1,
+            transform: [{ scale: pressed ? 0.98 : 1 }],
           },
         ]}
       >
@@ -63,22 +75,22 @@ export function ItemCard({ item, compact = false }: Props) {
             styles.thumb,
             {
               backgroundColor: item.type === "lost" ? colors.lostSoft : colors.foundSoft,
-              borderRadius: colors.radius - 4,
-              width: 60,
-              height: 60,
+              borderRadius: 14,
+              width: 64,
+              height: 64,
             },
           ]}
         >
           {item.image ? (
             <Image
               source={{ uri: item.image }}
-              style={{ width: "100%", height: "100%", borderRadius: colors.radius - 4 }}
+              style={{ width: "100%", height: "100%", borderRadius: 14 }}
               contentFit="cover"
             />
           ) : (
             <Feather
               name={item.type === "lost" ? "search" : "check-circle"}
-              size={24}
+              size={26}
               color={item.type === "lost" ? colors.lost : colors.found}
             />
           )}
@@ -88,14 +100,14 @@ export function ItemCard({ item, compact = false }: Props) {
             <TypeBadge type={item.type} />
             <Text
               numberOfLines={1}
-              style={{ flex: 1, color: colors.foreground, fontFamily: "Inter_600SemiBold", fontSize: 14 }}
+              style={{ flex: 1, color: "#fff", fontFamily: "Inter_600SemiBold", fontSize: 15 }}
             >
               {item.title}
             </Text>
           </View>
           <View style={styles.metaRow}>
-            <Feather name="calendar" size={12} color={colors.mutedForeground} />
-            <Text style={[styles.meta, { color: colors.mutedForeground }]}>{formatRelative(item.createdAt)}</Text>
+            <Feather name="calendar" size={12} color="rgba(255,255,255,0.5)" />
+            <Text style={[styles.meta, { color: "rgba(255,255,255,0.5)" }]}>{formatRelative(item.createdAt)}</Text>
             <StatusBadge status={item.status} />
           </View>
         </View>
@@ -104,73 +116,122 @@ export function ItemCard({ item, compact = false }: Props) {
   }
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border, borderRadius: colors.radius }]}>
+    <View
+      style={[
+        styles.card,
+        neumorphicStyle,
+        {
+          borderRadius: 24,
+        },
+      ]}
+    >
+      {/* Post header */}
       <View style={styles.header}>
-        <View style={styles.avatar}>
+        <View style={styles.avatarWrap}>
           {author?.avatar ? (
-            <Image source={{ uri: author.avatar }} style={{ width: 40, height: 40, borderRadius: 20 }} contentFit="cover" />
+            <Image
+              source={{ uri: author.avatar }}
+              style={{ width: 46, height: 46, borderRadius: 23 }}
+              contentFit="cover"
+            />
           ) : (
-            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.muted, alignItems: "center", justifyContent: "center" }}>
-              <Feather name="user" size={20} color={colors.mutedForeground} />
+            <View
+              style={{
+                width: 46,
+                height: 46,
+                borderRadius: 23,
+                backgroundColor: "rgba(255,255,255,0.1)",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 18 }}>
+                {(author?.name ?? "?")[0].toUpperCase()}
+              </Text>
             </View>
           )}
         </View>
-        <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={{ color: colors.foreground, fontFamily: "Inter_600SemiBold", fontSize: 15 }}>
+        <View style={{ flex: 1, marginLeft: 12 }}>
+          <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 16 }}>
             {author?.name || "Unknown User"}
           </Text>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 }}>
-            <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_400Regular", fontSize: 12 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <Feather name="clock" size={11} color="rgba(255,255,255,0.5)" />
+            <Text style={{ color: "rgba(255,255,255,0.5)", fontFamily: "Inter_500Medium", fontSize: 12 }}>
               {formatRelative(item.createdAt)}
             </Text>
-            <Text style={{ color: colors.mutedForeground }}>·</Text>
-            <Feather name={publicityIcon} size={12} color={colors.mutedForeground} />
+            <Text style={{ color: "rgba(255,255,255,0.3)" }}>·</Text>
+            <Feather name={publicityIcon} size={11} color="rgba(255,255,255,0.5)" />
           </View>
         </View>
         <StatusBadge status={item.status} />
       </View>
 
-      <Pressable onPress={() => router.push(`/items/${item.id}` as never)} style={{ paddingHorizontal: 14, paddingBottom: 14 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 }}>
+      {/* Post body */}
+      <Pressable onPress={() => router.push(`/items/${item.id}` as never)} style={{ paddingHorizontal: 20, paddingBottom: 16 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 }}>
           <TypeBadge type={item.type} />
           {category && (
-            <Text style={{ color: colors.primary, fontFamily: "Inter_500Medium", fontSize: 13 }}>
-              {category.name}
-            </Text>
+            <View style={[styles.categoryChip, { backgroundColor: "rgba(255,255,255,0.1)" }]}>
+              <Text style={{ color: "#fff", fontFamily: "Inter_600SemiBold", fontSize: 12 }}>
+                {category.name}
+              </Text>
+            </View>
           )}
         </View>
-        <Text style={{ color: colors.foreground, fontFamily: "Inter_700Bold", fontSize: 16, marginBottom: 4 }}>
+        <Text style={{ color: "#fff", fontFamily: "Inter_700Bold", fontSize: 18, marginBottom: 8 }}>
           {item.title}
         </Text>
-        <Text numberOfLines={2} style={{ color: colors.foreground, fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 20 }}>
+        <Text numberOfLines={2} style={{ color: "rgba(255,255,255,0.7)", fontFamily: "Inter_400Regular", fontSize: 15, lineHeight: 22 }}>
           {item.description}
         </Text>
       </Pressable>
 
+      {/* Post image */}
       {item.image ? (
-        <Pressable onPress={() => router.push(`/items/${item.id}` as never)}>
-          <Image source={{ uri: item.image }} style={{ width: "100%", height: 250 }} contentFit="cover" />
+        <Pressable onPress={() => router.push(`/items/${item.id}` as never)} style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+          <Image
+            source={{ uri: item.image }}
+            style={{ width: "100%", height: 200, borderRadius: 16 }}
+            contentFit="cover"
+          />
         </Pressable>
       ) : null}
 
-      <View style={[styles.footer, { borderTopColor: colors.border }]}>
-        <Pressable onPress={handleLike} style={({ pressed }) => [styles.actionButton, { opacity: pressed ? 0.7 : 1 }]}>
-          <Feather name="heart" size={20} color={isLiked ? colors.destructive : colors.mutedForeground} />
-          <Text style={{ color: isLiked ? colors.destructive : colors.mutedForeground, fontFamily: "Inter_500Medium", fontSize: 13 }}>
+      {/* Action footer */}
+      <View style={[styles.footer, { borderTopColor: "rgba(255,255,255,0.1)" }]}>
+        <Pressable
+          onPress={handleLike}
+          style={({ pressed }) => [styles.actionBtn, { backgroundColor: "rgba(255,255,255,0.05)", opacity: pressed ? 0.7 : 1 }]}
+        >
+          <View style={[styles.actionIconWrap]}>
+            <Feather name="heart" size={20} color={isLiked ? colors.destructive : "rgba(255,255,255,0.5)"} />
+          </View>
+          <Text style={{ color: isLiked ? colors.destructive : "rgba(255,255,255,0.5)", fontFamily: "Inter_600SemiBold", fontSize: 14 }}>
             {item.likes?.length || 0}
           </Text>
         </Pressable>
 
-        <Pressable onPress={() => router.push(`/items/${item.id}` as never)} style={({ pressed }) => [styles.actionButton, { opacity: pressed ? 0.7 : 1 }]}>
-          <Feather name="message-square" size={20} color={colors.mutedForeground} />
-          <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_500Medium", fontSize: 13 }}>
+        <Pressable
+          onPress={() => router.push(`/items/${item.id}` as never)}
+          style={({ pressed }) => [styles.actionBtn, { backgroundColor: "rgba(255,255,255,0.05)", opacity: pressed ? 0.7 : 1 }]}
+        >
+          <View style={styles.actionIconWrap}>
+            <Feather name="message-square" size={20} color="rgba(255,255,255,0.5)" />
+          </View>
+          <Text style={{ color: "rgba(255,255,255,0.5)", fontFamily: "Inter_600SemiBold", fontSize: 14 }}>
             {item.comments?.length || 0}
           </Text>
         </Pressable>
 
-        <Pressable onPress={handleShare} style={({ pressed }) => [styles.actionButton, { opacity: pressed ? 0.7 : 1 }]}>
-          <Feather name="share-2" size={20} color={colors.mutedForeground} />
-          <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_500Medium", fontSize: 13 }}>Share</Text>
+        <Pressable
+          onPress={handleShare}
+          style={({ pressed }) => [styles.actionBtn, { backgroundColor: "rgba(255,255,255,0.05)", opacity: pressed ? 0.7 : 1 }]}
+        >
+          <View style={styles.actionIconWrap}>
+            <Feather name="share-2" size={20} color="rgba(255,255,255,0.5)" />
+          </View>
+          <Text style={{ color: "rgba(255,255,255,0.5)", fontFamily: "Inter_600SemiBold", fontSize: 14 }}>Share</Text>
         </Pressable>
       </View>
     </View>
@@ -180,22 +241,20 @@ export function ItemCard({ item, compact = false }: Props) {
 const styles = StyleSheet.create({
   cardCompact: {
     flexDirection: "row",
-    padding: 12,
-    gap: 12,
-    borderWidth: 1,
+    padding: 16,
+    gap: 16,
     alignItems: "center",
   },
   card: {
-    marginBottom: 16,
-    borderWidth: 1,
+    marginBottom: 20,
     overflow: "hidden",
   },
   header: {
     flexDirection: "row",
-    padding: 14,
+    padding: 20,
     alignItems: "center",
   },
-  avatar: {
+  avatarWrap: {
     justifyContent: "center",
     alignItems: "center",
   },
@@ -204,20 +263,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     overflow: "hidden",
   },
-  row: { flexDirection: "row", alignItems: "center", gap: 8 },
+  row: { flexDirection: "row", alignItems: "center", gap: 10 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  meta: { fontSize: 12, fontFamily: "Inter_400Regular" },
+  meta: { fontSize: 13, fontFamily: "Inter_500Medium" },
+  categoryChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
   footer: {
     flexDirection: "row",
     borderTopWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    justifyContent: "space-around",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    justifyContent: "space-between",
   },
-  actionButton: {
+  actionBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    padding: 6,
+    gap: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.02)",
+  },
+  actionIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
