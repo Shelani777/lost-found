@@ -1,0 +1,16 @@
+env: load .env
+env: export MONGO_URI JWT_SECRET API_PORT EXPO_PUBLIC_API_URL
+Starting project at C:\Users\User\OneDrive\Desktop\lost-found\frontend
+Starting Metro Bundler
+Waiting on http://localhost:8085
+Logs for your project will appear below.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android node_modules\expo-router\entry.js ▓▓▓▓░░░░░░░░░░░░ 30.3% ( 58/242)
+Android node_modules\expo-router\entry.js ▓▓▓▓░░░░░░░░░░░░ 30.5% (465/859)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.1% ( 952/1171)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 85.0% (1280/1388)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 87.1% (1410/1538)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 92.9% (1544/1604)
+Android Bundled 24336ms node_modules\expo-router\entry.js (1737 modules)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 293ms node_modules\expo-router\entry.js (1 module)

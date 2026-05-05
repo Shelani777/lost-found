@@ -1,0 +1,25 @@
+env: load .env
+env: export MONGO_URI JWT_SECRET API_PORT EXPO_PUBLIC_API_URL
+Starting project at C:\Users\User\OneDrive\Desktop\lost-found\frontend
+Starting Metro Bundler
+Waiting on http://localhost:8082
+Logs for your project will appear below.
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  1.0% (1/1)
+Web node_modules\expo-router\entry.js ▓▓▓▓░░░░░░░░░░░░ 25.0% ( 19/110)
+Web node_modules\expo-router\entry.js ▓▓▓▓░░░░░░░░░░░░ 25.0% ( 38/203)
+Web node_modules\expo-router\entry.js ▓▓▓▓░░░░░░░░░░░░ 25.0% ( 88/274)
+Web node_modules\expo-router\entry.js ▓▓▓▓░░░░░░░░░░░░ 25.0% (168/337)
+Web node_modules\expo-router\entry.js ▓▓▓▓░░░░░░░░░░░░ 30.4% (229/415)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 41.3% (302/481)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 41.3% (352/601)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 42.8% (440/673)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 47.5% (523/776)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 56.6% (652/873)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 76.4% (828/975)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 82.0% ( 961/1085)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 82.0% (1021/1169)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 85.6% (1198/1298)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.6% (1386/1412)
+Web Bundled 71108ms node_modules\expo-router\entry.js (1473 modules)
+ LOG  [web] Logs will appear in the browser console

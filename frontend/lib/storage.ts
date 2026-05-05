@@ -35,7 +35,7 @@ export interface Item {
   description: string;
   categoryId: string;
   location: string;
-  image?: string;
+  image?: string | null;
   contactNumber: string;
   status: ItemStatus;
   publicity: "everyone" | "students_only";
@@ -51,7 +51,7 @@ export interface ClaimRequest {
   userId: string;
   message: string;
   contactNumber: string;
-  proofImage?: string;
+  proofImage?: string | null;
   status: ClaimStatus;
   createdAt: string;
 }
@@ -62,7 +62,7 @@ export interface Report {
   userId: string;
   reason: string;
   description: string;
-  screenshot?: string;
+  screenshot?: string | null;
   status: ReportStatus;
   createdAt: string;
 }
@@ -71,7 +71,7 @@ export interface Announcement {
   id: string;
   title: string;
   description: string;
-  image?: string;
+  image?: string | null;
   postedBy: string;
   createdAt: string;
 }

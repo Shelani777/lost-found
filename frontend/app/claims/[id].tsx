@@ -75,9 +75,16 @@ export default function ClaimDetailScreen() {
           headerRight:
             isClaimer || isAdmin
               ? () => (
-                  <Pressable hitSlop={8} onPress={onDelete}>
-                    <Feather name="trash-2" size={20} color={colors.destructive} />
-                  </Pressable>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+                    {isClaimer ? (
+                      <Pressable hitSlop={8} onPress={() => router.push(`/claims/new?id=${claim.id}` as never)}>
+                        <Feather name="edit-2" size={20} color={colors.primary} />
+                      </Pressable>
+                    ) : null}
+                    <Pressable hitSlop={8} onPress={onDelete}>
+                      <Feather name="trash-2" size={20} color={colors.destructive} />
+                    </Pressable>
+                  </View>
                 )
               : undefined,
         }}

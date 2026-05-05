@@ -18,6 +18,10 @@ function applyVisibilityRule(payload, user) {
   return payload;
 }
 
+function canManageItem(user, item) {
+  return user?.role === 'admin' || item.userId === user?._id?.toString();
+}
+
 async function findVisibleItem(req, res) {
   const [item, user] = await Promise.all([Item.findById(req.params.id), getViewer(req)]);
   if (!item) {
@@ -43,13 +47,25 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   const user = await getViewer(req);
+  const existing = await Item.findById(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+  if (!canManageItem(user, existing)) return res.status(403).json({ error: 'Access denied' });
   const patch = applyVisibilityRule({ ...(req.body || {}) }, user);
   const doc = await Item.findByIdAndUpdate(req.params.id, patch, { new: true });
-  if (!doc) return res.status(404).json({ error: 'Not found' });
+  if (patch.status === 'claimed') {
+    await Claim.updateMany({ itemId: req.params.id, status: 'pending' }, { status: 'approved' });
+  }
+  if (patch.status === 'closed') {
+    await Claim.updateMany({ itemId: req.params.id, status: 'pending' }, { status: 'rejected' });
+  }
   return res.json(doc.toJSON());
 };
 
 exports.remove = async (req, res) => {
+  const user = await getViewer(req);
+  const existing = await Item.findById(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+  if (!canManageItem(user, existing)) return res.status(403).json({ error: 'Access denied' });
   await Item.findByIdAndDelete(req.params.id);
   await Claim.deleteMany({ itemId: req.params.id });
   await Report.deleteMany({ itemId: req.params.id });

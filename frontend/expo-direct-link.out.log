@@ -1,0 +1,5 @@
+env: load .env
+env: export MONGO_URI JWT_SECRET API_PORT EXPO_PUBLIC_API_URL
+Starting project at C:\Users\User\OneDrive\Desktop\lost-found\frontend
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)

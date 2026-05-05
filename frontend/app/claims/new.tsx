@@ -1,5 +1,5 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,16 +16,34 @@ export default function NewClaimScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { itemId } = useLocalSearchParams<{ itemId: string }>();
+  const { itemId, id } = useLocalSearchParams<{ itemId?: string; id?: string }>();
   const { user } = useAuth();
-  const { getItem, createClaim } = useData();
+  const { claims, getItem, createClaim, updateClaim } = useData();
+  const editingClaim = id ? claims.find((c) => c.id === id) : undefined;
+  const isEditing = Boolean(id);
 
-  const item = itemId ? getItem(itemId) : undefined;
+  const item = getItem(editingClaim?.itemId ?? itemId ?? "");
   const [message, setMessage] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [proofImage, setProofImage] = useState<string | undefined>();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!editingClaim) return;
+    setMessage(editingClaim.message);
+    setContactNumber(editingClaim.contactNumber);
+    setProofImage(editingClaim.proofImage ?? undefined);
+  }, [editingClaim]);
+
+  if (isEditing && (!editingClaim || editingClaim.userId !== user?.id)) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}>
+        <Stack.Screen options={{ title: "Edit Claim Request" }} />
+        <Text style={{ color: colors.foreground }}>Claim not found</Text>
+      </View>
+    );
+  }
 
   if (!item || !user) {
     return (
@@ -46,22 +64,34 @@ export default function NewClaimScreen() {
   const onSubmit = async () => {
     if (!validate()) return;
     setBusy(true);
-    const claim = await createClaim({
-      itemId: item.id,
-      userId: user.id,
-      message: message.trim(),
-      contactNumber: contactNumber.trim(),
-      proofImage,
-    });
-    setBusy(false);
-    router.replace(`/claims/${claim.id}` as never);
+    try {
+      if (editingClaim) {
+        await updateClaim(editingClaim.id, {
+          message: message.trim(),
+          contactNumber: contactNumber.trim(),
+          proofImage: proofImage ?? null,
+        });
+        router.back();
+      } else {
+        const claim = await createClaim({
+          itemId: item.id,
+          userId: user.id,
+          message: message.trim(),
+          contactNumber: contactNumber.trim(),
+          proofImage: proofImage ?? null,
+        });
+        router.replace(`/claims/${claim.id}` as never);
+      }
+    } finally {
+      setBusy(false);
+    }
   };
 
   const ScrollComp = Platform.OS === "web" ? ScrollView : KeyboardAwareScrollViewCompat;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Stack.Screen options={{ title: "New Claim Request" }} />
+      <Stack.Screen options={{ title: isEditing ? "Edit Claim Request" : "New Claim Request" }} />
       <ScrollComp
         contentContainerStyle={{ padding: 18, paddingBottom: insets.bottom + 40, gap: 16 }}
         keyboardShouldPersistTaps="handled"
@@ -107,7 +137,7 @@ export default function NewClaimScreen() {
 
         <ImagePickerField value={proofImage} onChange={setProofImage} label="Proof Photo (optional)" />
 
-        <Button title="Send Claim Request" onPress={onSubmit} loading={busy} />
+        <Button title={isEditing ? "Save Changes" : "Send Claim Request"} onPress={onSubmit} loading={busy} />
       </ScrollComp>
     </View>
   );

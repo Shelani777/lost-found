@@ -16,7 +16,7 @@ export default function EditItemScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getItem, categories, updateItem } = useData();
   const item = id ? getItem(id) : undefined;
@@ -26,7 +26,7 @@ export default function EditItemScreen() {
   const [categoryId, setCategoryId] = useState<string | null>(item?.categoryId ?? null);
   const [location, setLocation] = useState(item?.location ?? "");
   const [contactNumber, setContactNumber] = useState(item?.contactNumber ?? "");
-  const [image, setImage] = useState<string | undefined>(item?.image);
+  const [image, setImage] = useState<string | undefined>(item?.image ?? undefined);
   const [publicity, setPublicity] = useState<string>(item?.publicity ?? "everyone");
   const [busy, setBusy] = useState(false);
   const canPostStudentsOnly = user?.userCategory === "student" || user?.role === "admin";
@@ -38,7 +38,7 @@ export default function EditItemScreen() {
     setCategoryId(item.categoryId);
     setLocation(item.location);
     setContactNumber(item.contactNumber);
-    setImage(item.image);
+    setImage(item.image ?? undefined);
     setPublicity(item.publicity);
   }, [item?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -65,6 +65,15 @@ export default function EditItemScreen() {
     );
   }
 
+  const isOwner = user?.id === item.userId;
+  if (!isOwner && !isAdmin) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background }}>
+        <Text style={{ color: colors.foreground }}>You cannot edit this post</Text>
+      </View>
+    );
+  }
+
   const onSave = async () => {
     if (!categoryId) return;
     setBusy(true);
@@ -74,7 +83,7 @@ export default function EditItemScreen() {
       categoryId,
       location: location.trim(),
       contactNumber: contactNumber.trim(),
-      image,
+      image: image ?? null,
       publicity: canPostStudentsOnly ? (publicity as "everyone" | "students_only") : "everyone",
     });
     setBusy(false);

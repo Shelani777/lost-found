@@ -46,8 +46,8 @@ export default function AdminReportsScreen() {
 
   const removePost = (itemId: string, reportId: string) => {
     const doIt = async () => {
-      await deleteItem(itemId);
       await setReportStatus(reportId, "resolved");
+      await deleteItem(itemId);
     };
     if (Platform.OS === "web") return doIt();
     Alert.alert("Remove this post?", "The post will be deleted and the report resolved.", [
@@ -97,7 +97,8 @@ export default function AdminReportsScreen() {
         renderItem={({ item: report }) => {
           const it = getItem(report.itemId);
           return (
-            <View
+            <Pressable
+              onPress={() => router.push(`/reports/${report.id}` as never)}
               style={[
                 styles.card,
                 { backgroundColor: colors.card, borderColor: colors.border, borderRadius: colors.radius },
@@ -189,7 +190,7 @@ export default function AdminReportsScreen() {
                   />
                 </View>
               </View>
-            </View>
+            </Pressable>
           );
         }}
         ListEmptyComponent={

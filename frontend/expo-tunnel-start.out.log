@@ -1,0 +1,15 @@
+env: load .env
+env: export MONGO_URI JWT_SECRET API_PORT EXPO_PUBLIC_API_URL
+Starting project at C:\Users\User\OneDrive\Desktop\lost-found\frontend
+Starting Metro Bundler
+Tunnel connected.
+Tunnel ready.
+Waiting on http://localhost:8086
+Logs for your project will appear below.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 2803ms node_modules\expo-router\entry.js (1737 modules)
+ WARN  [expo-image-picker] `ImagePicker.MediaTypeOptions` have been deprecated. Use `ImagePicker.MediaType` or an array of `ImagePicker.MediaType` instead.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 70ms node_modules\expo-router\entry.js (1 module)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 206ms node_modules\expo-router\entry.js (1 module)

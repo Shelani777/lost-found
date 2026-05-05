@@ -1,0 +1,11 @@
+Error while reading cache, falling back to a full crawl:
+ Error: Unable to deserialize cloned data.
+    at deserialize (node:v8:402:14)
+    at DiskCacheManager.read (C:\Users\User\OneDrive\Desktop\lost-found\frontend\node_modules\metro-file-map\src\cache\DiskCacheManager.js:60:33)
+    at FileMap.read (C:\Users\User\OneDrive\Desktop\lost-found\frontend\node_modules\metro-file-map\src\index.js:284:14)
+    at C:\Users\User\OneDrive\Desktop\lost-found\frontend\node_modules\metro-file-map\src\index.js:202:25
+    at DependencyGraph.ready (C:\Users\User\OneDrive\Desktop\lost-found\frontend\node_modules\metro\src\node-haste\DependencyGraph.js:88:5)
+    at Bundler.ready (C:\Users\User\OneDrive\Desktop\lost-found\frontend\node_modules\metro\src\Bundler.js:62:5)
+    at IncrementalBundler.ready (C:\Users\User\OneDrive\Desktop\lost-found\frontend\node_modules\metro\src\IncrementalBundler.js:302:5)
+    at Server.ready (C:\Users\User\OneDrive\Desktop\lost-found\frontend\node_modules\metro\src\Server.js:1305:5)
+CommandError: ngrok tunnel took too long to connect.

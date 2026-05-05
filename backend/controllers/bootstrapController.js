@@ -28,10 +28,17 @@ exports.bootstrap = async (req, res) => {
     };
   }
 
+  const ownedItemIds = isAdmin ? [] : await Item.find({ userId: req.user.id }).distinct('_id');
+  const ownedItemIdStrings = ownedItemIds.map((id) => id.toString());
+  const claimQuery = isAdmin
+    ? {}
+    : { $or: [{ userId: req.user.id }, { itemId: { $in: ownedItemIdStrings } }] };
+  const reportQuery = isAdmin ? {} : { userId: req.user.id };
+
   const [items, claims, reports, announcements, allUsers] = await Promise.all([
     Item.find(itemsQuery).sort({ _id: -1 }).lean(),
-    Claim.find({}).sort({ _id: -1 }).lean(),
-    Report.find({}).sort({ _id: -1 }).lean(),
+    Claim.find(claimQuery).sort({ _id: -1 }).lean(),
+    Report.find(reportQuery).sort({ _id: -1 }).lean(),
     Announcement.find({}).sort({ _id: -1 }).lean(),
     User.find({}).lean(),
   ]);

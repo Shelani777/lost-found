@@ -47,9 +47,14 @@ export default function AnnouncementDetailScreen() {
           title: "Announcement",
           headerRight: isAdmin
             ? () => (
-                <Pressable hitSlop={8} onPress={onDelete}>
-                  <Feather name="trash-2" size={20} color={colors.destructive} />
-                </Pressable>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+                  <Pressable hitSlop={8} onPress={() => router.push(`/announcements/new?id=${a.id}` as never)}>
+                    <Feather name="edit-2" size={20} color={colors.primary} />
+                  </Pressable>
+                  <Pressable hitSlop={8} onPress={onDelete}>
+                    <Feather name="trash-2" size={20} color={colors.destructive} />
+                  </Pressable>
+                </View>
               )
             : undefined,
         }}

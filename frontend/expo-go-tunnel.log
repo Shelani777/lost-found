@@ -1,0 +1,46 @@
+env: load .env
+env: export MONGO_URI JWT_SECRET API_PORT EXPO_PUBLIC_API_URL
+Starting project at C:\Users\User\OneDrive\Desktop\lost-found\frontend
+Starting Metro Bundler
+Tunnel connected.
+Tunnel ready.
+Waiting on http://localhost:8083
+Logs for your project will appear below.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  1.0% (1/1)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓░░░░░░░░░░░ 31.9% ( 38/203)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓░░░░░░░░░░░ 31.9% (135/384)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓░░░░░░░░░░░ 31.9% (230/552)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓░░░░░░░░░░░ 31.9% (381/725)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓░░░░░░░░░░░ 31.9% (459/818)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 40.6% ( 668/1049)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 53.8% ( 827/1128)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.7% (1065/1249)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83.0% (1239/1360)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 87.6% (1343/1448)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.2% (1484/1570)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.4% (1662/1693)
+Android Bundled 52471ms node_modules\expo-router\entry.js (1736 modules)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 69ms node_modules\expo-router\entry.js (1 module)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 297ms node_modules\expo-router\entry.js (1 module)
+ WARN  [expo-image-picker] `ImagePicker.MediaTypeOptions` have been deprecated. Use `ImagePicker.MediaType` or an array of `ImagePicker.MediaType` instead.
+ WARN  [expo-image-picker] `ImagePicker.MediaTypeOptions` have been deprecated. Use `ImagePicker.MediaType` or an array of `ImagePicker.MediaType` instead.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 643ms node_modules\expo-router\entry.js (1 module)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 672ms node_modules\expo-router\entry.js (1 module)
+ WARN  [expo-image-picker] `ImagePicker.MediaTypeOptions` have been deprecated. Use `ImagePicker.MediaType` or an array of `ImagePicker.MediaType` instead.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 104ms node_modules\expo-router\entry.js (1 module)
+ WARN  [expo-image-picker] `ImagePicker.MediaTypeOptions` have been deprecated. Use `ImagePicker.MediaType` or an array of `ImagePicker.MediaType` instead.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 66ms node_modules\expo-router\entry.js (1 module)
+Tunnel connected.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 109ms node_modules\expo-router\entry.js (1 module)
+Tunnel connected.
+Tunnel connected.
+Tunnel connected.
+Tunnel connected.

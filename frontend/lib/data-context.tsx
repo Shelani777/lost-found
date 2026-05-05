@@ -77,7 +77,7 @@ const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const useApi = hasApiBaseUrl();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, ready: authReady } = useAuth();
   const [state, setState] = useState<DataState>({
     ready: false,
     categories: [],
@@ -91,6 +91,21 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
     (async () => {
+      if (!authReady) return;
+      if (!user) {
+        if (active) {
+          setState({
+            ready: true,
+            categories: [],
+            items: [],
+            claims: [],
+            reports: [],
+            announcements: [],
+            users: [],
+          });
+        }
+        return;
+      }
       if (useApi) {
         try {
           const data = await apiBootstrap();
@@ -128,7 +143,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return () => {
       active = false;
     };
-  }, [useApi]);
+  }, [authReady, user?.id, useApi]);
 
   const canViewItem = useCallback(
     (item: Item) => {
@@ -222,8 +237,24 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const setItemStatus = useCallback<DataContextValue["setItemStatus"]>(
     async (id, status) => {
       await updateItem(id, { status });
+      if (status === "claimed" || status === "closed") {
+        const claimStatus: ClaimStatus = status === "claimed" ? "approved" : "rejected";
+        if (!useApi) {
+          const next = state.claims.map((c) =>
+            c.itemId === id && c.status === "pending" ? { ...c, status: claimStatus } : c,
+          );
+          await persist("claims", STORAGE_KEYS.claims, next);
+          return;
+        }
+        setState((s) => ({
+          ...s,
+          claims: s.claims.map((c) =>
+            c.itemId === id && c.status === "pending" ? { ...c, status: claimStatus } : c,
+          ),
+        }));
+      }
     },
-    [updateItem],
+    [persist, state.claims, updateItem, useApi],
   );
 
   const likeItem = useCallback<DataContextValue["likeItem"]>(

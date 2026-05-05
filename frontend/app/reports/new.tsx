@@ -1,5 +1,5 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -17,9 +17,11 @@ export default function NewReportScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { itemId } = useLocalSearchParams<{ itemId?: string }>();
+  const { itemId, id } = useLocalSearchParams<{ itemId?: string; id?: string }>();
   const { user } = useAuth();
-  const { items, getItem, createReport } = useData();
+  const { items, reports, getItem, createReport, updateReport } = useData();
+  const editingReport = id ? reports.find((r) => r.id === id) : undefined;
+  const isEditing = Boolean(id);
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(itemId ?? null);
   const [reason, setReason] = useState<string | null>(REPORT_REASONS[0]);
@@ -27,6 +29,14 @@ export default function NewReportScreen() {
   const [screenshot, setScreenshot] = useState<string | undefined>();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!editingReport) return;
+    setSelectedItemId(editingReport.itemId);
+    setReason(editingReport.reason);
+    setDescription(editingReport.description);
+    setScreenshot(editingReport.screenshot ?? undefined);
+  }, [editingReport]);
 
   const itemOptions = useMemo(
     () =>
@@ -57,22 +67,45 @@ export default function NewReportScreen() {
   const onSubmit = async () => {
     if (!validate() || !user || !selectedItemId || !reason) return;
     setBusy(true);
-    await createReport({
-      itemId: selectedItemId,
-      userId: user.id,
-      reason,
-      description: description.trim(),
-      screenshot,
-    });
-    setBusy(false);
-    router.replace("/reports" as never);
+    try {
+      if (editingReport) {
+        await updateReport(editingReport.id, {
+          reason,
+          description: description.trim(),
+          screenshot: screenshot ?? null,
+        });
+        router.back();
+      } else {
+        await createReport({
+          itemId: selectedItemId,
+          userId: user.id,
+          reason,
+          description: description.trim(),
+          screenshot: screenshot ?? null,
+        });
+        router.replace("/reports" as never);
+      }
+    } finally {
+      setBusy(false);
+    }
   };
 
   const ScrollComp = Platform.OS === "web" ? ScrollView : KeyboardAwareScrollViewCompat;
 
+  if (isEditing && (!editingReport || editingReport.userId !== user?.id)) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.background, padding: 24 }}>
+        <Stack.Screen options={{ title: "Edit Report" }} />
+        <Text style={{ color: colors.foreground, fontFamily: "Inter_700Bold", fontSize: 18, textAlign: "center" }}>
+          Report not found
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Stack.Screen options={{ title: "Report a Post" }} />
+      <Stack.Screen options={{ title: isEditing ? "Edit Report" : "Report a Post" }} />
       <ScrollComp
         contentContainerStyle={{ padding: 18, paddingBottom: insets.bottom + 40, gap: 16 }}
         keyboardShouldPersistTaps="handled"
@@ -117,7 +150,7 @@ export default function NewReportScreen() {
 
         <ImagePickerField value={screenshot} onChange={setScreenshot} label="Screenshot (optional)" />
 
-        <Button title="Submit Report" onPress={onSubmit} loading={busy} variant="destructive" />
+        <Button title={isEditing ? "Save Changes" : "Submit Report"} onPress={onSubmit} loading={busy} variant="destructive" />
       </ScrollComp>
     </View>
   );

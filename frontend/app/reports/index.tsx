@@ -34,7 +34,7 @@ export default function ReportsListScreen() {
           const it = getItem(report.itemId);
           return (
             <Pressable
-              onPress={() => (it ? router.push(`/items/${it.id}` as never) : null)}
+              onPress={() => router.push(`/reports/${report.id}` as never)}
               style={({ pressed }) => [
                 styles.card,
                 {
