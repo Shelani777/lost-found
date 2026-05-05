@@ -29,9 +29,24 @@ export default function RegisterScreen() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const validateIdentity = () => {
+    const cleanId = identityId.trim().toUpperCase();
+    const oldNic = /^(\d{2})(\d{3})\d{4}[VX]$/.exec(cleanId);
+    const newNic = /^(\d{4})(\d{3})\d{5}$/.exec(cleanId);
+    const dayValue = oldNic ? Number(oldNic[2]) : newNic ? Number(newNic[2]) : 0;
+    const validNic = (dayValue >= 1 && dayValue <= 366) || (dayValue >= 501 && dayValue <= 866);
+    const validStudentId = /^[A-Z]{2}\d{8}$/.test(cleanId);
+    return validNic || validStudentId;
+  };
+
   const onSubmit = async () => {
     setError(null);
     setBusy(true);
+    if (!validateIdentity()) {
+      setError("Enter a valid Sri Lankan NIC or SLIIT student ID, e.g. 200012345678 or IT12345678.");
+      setBusy(false);
+      return;
+    }
     const numAge = parseInt(age, 10);
     if (!numAge || numAge < 1) {
       setError("Please enter a valid age");
@@ -134,9 +149,9 @@ export default function RegisterScreen() {
               <Input
                 label="ID / NIC Number"
                 iconLeft="credit-card"
-                placeholder="Student IT Number or NIC"
+                placeholder="NIC or SLIIT ID (IT12345678)"
                 value={identityId}
-                onChangeText={setIdentityId}
+                onChangeText={(value) => setIdentityId(value.toUpperCase())}
                 autoCapitalize="characters"
               />
               <Input

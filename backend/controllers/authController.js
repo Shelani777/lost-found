@@ -4,6 +4,29 @@ const User = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 
+function isValidNic(identityId) {
+  const id = String(identityId || '').trim().toUpperCase();
+  const oldNic = /^(\d{2})(\d{3})\d{4}[VX]$/.exec(id);
+  const newNic = /^(\d{4})(\d{3})\d{5}$/.exec(id);
+  const dayValue = oldNic ? Number(oldNic[2]) : newNic ? Number(newNic[2]) : 0;
+  return (dayValue >= 1 && dayValue <= 366) || (dayValue >= 501 && dayValue <= 866);
+}
+
+function isValidStudentId(identityId) {
+  return /^[A-Z]{2}\d{8}$/.test(String(identityId || '').trim());
+}
+
+function getIdentityCategory(identityId) {
+  const cleanId = String(identityId || '').trim().toUpperCase();
+  if (isValidStudentId(cleanId)) return 'student';
+  if (isValidNic(cleanId)) return 'other';
+  return null;
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+}
+
 exports.register = async (req, res) => {
   const { identityId, name, email, age, gender, phone, password, avatar } = req.body || {};
   const cleanId = String(identityId || '').trim().toUpperCase();
@@ -13,8 +36,10 @@ exports.register = async (req, res) => {
   const numAge = Number(age);
 
   if (!cleanId) return res.status(400).json({ error: 'Please enter your ID/NIC' });
+  const userCategory = getIdentityCategory(cleanId);
+  if (!userCategory) return res.status(400).json({ error: 'Enter a valid Sri Lankan NIC or SLIIT student ID.' });
   if (!cleanName) return res.status(400).json({ error: 'Please enter your name' });
-  if (!cleanEmail) return res.status(400).json({ error: 'Please enter a valid email' });
+  if (!isValidEmail(cleanEmail)) return res.status(400).json({ error: 'Please enter a valid email' });
   if (!numAge || numAge < 1) return res.status(400).json({ error: 'Please enter a valid age' });
   if (!gender) return res.status(400).json({ error: 'Please select gender' });
   if (!phone) return res.status(400).json({ error: 'Please enter your phone number' });
@@ -23,7 +48,6 @@ exports.register = async (req, res) => {
   const exists = await User.findOne({ identityId: cleanId });
   if (exists) return res.status(409).json({ error: 'An account with that ID already exists' });
 
-  const userCategory = (cleanId.startsWith('IT') && cleanId.length >= 8) ? 'student' : 'other';
   const passwordHash = await bcrypt.hash(plainPassword, 10);
   const user = await User.create({
     identityId: cleanId,

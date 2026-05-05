@@ -42,6 +42,25 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function isValidNic(identityId: string): boolean {
+  const id = identityId.trim().toUpperCase();
+  const oldNic = /^(\d{2})(\d{3})\d{4}[VX]$/.exec(id);
+  const newNic = /^(\d{4})(\d{3})\d{5}$/.exec(id);
+  const dayValue = oldNic ? Number(oldNic[2]) : newNic ? Number(newNic[2]) : 0;
+  return (dayValue >= 1 && dayValue <= 366) || (dayValue >= 501 && dayValue <= 866);
+}
+
+function isValidStudentId(identityId: string): boolean {
+  return /^[A-Z]{2}\d{8}$/.test(identityId.trim());
+}
+
+function getIdentityCategory(identityId: string): User["userCategory"] | null {
+  const cleanId = identityId.trim().toUpperCase();
+  if (isValidStudentId(cleanId)) return "student";
+  if (isValidNic(cleanId)) return "other";
+  return null;
+}
+
 function mapApiUser(user: ApiUser): User {
   return {
     id: user.id,
@@ -123,7 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cleanId = payload.identityId.trim().toUpperCase();
     const cleanName = payload.name.trim();
     const cleanEmail = payload.email.trim().toLowerCase();
-    if (!cleanId) return { ok: false, error: "Please enter your ID/NIC" };
+    const userCategory = getIdentityCategory(cleanId);
+    if (!userCategory) return { ok: false, error: "Enter a valid Sri Lankan NIC or SLIIT student ID." };
     if (!cleanName) return { ok: false, error: "Please enter your name" };
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       return { ok: false, error: "Please enter a valid email" };
@@ -133,7 +153,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (users.some((u) => u.identityId === cleanId)) {
       return { ok: false, error: "An account with that ID already exists" };
     }
-    const userCategory = (cleanId.startsWith("IT") && cleanId.length >= 8) ? "student" : "other";
     const user: User = {
       id: genId(),
       identityId: cleanId,
